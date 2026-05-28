@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookio — A tua próxima grande leitura</title>
+    
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabecalho.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bookio">
+                <a href="{{ url_for('index') }}">Bookio</a>
+            </div>
+            
+            <nav class="user-nav">
+                <a href="{{ url_for('publicar') }}" class="nav-item"><i class="fa-solid fa-plus"></i> Publicar</a>
+                <a href="{{ url_for('explorar') }}" class="nav-item"><i class="fa-solid fa-compass"></i> Explorar</a>
+                <a href="{{ url_for('biblioteca') }}" class="nav-item"><i class="fas fa-book-reader"></i> Biblioteca</a>
+            </nav>
+
+            {% if session.get('user_id') %}
+                <a class="user-btn nav-item" href="{{ url_for('perfil') }}">
+                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="Perfil">
+                    <span>{{ session['username'] }}</span>
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="nav-item">Iniciar Sessão</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-grid-pattern"></div>
+        
+        <div class="hero-container">
+            <div class="hero-text-side">
+                <div class="hero-badge">Nova plataforma de leitura digital</div>
+                <h1 class="hero-title">
+                    Descobre o teu próximo <br><span class="accent">universo</span>
+                </h1>
+                <p class="hero-subtitle">Acede a milhares de eBooks, publica as tuas histórias e conecta-te com uma comunidade apaixonada pela leitura.</p>
+                
+                <form action="{{ url_for('explorar') }}" method="get" class="hero-search">
+                    <input type="text" name="q" placeholder="Pesquisar por título, autor ou género...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+
+                <div class="hero-stats">
+                    <div class="stat">
+                        <!--<span class="num">{{ total_libros or '0' }}+</span>-->
+                        <span class="num">350+</span>
+                        <span class="lab">Títulos</span>
+                    </div>
+                    <div class="stat">
+                        <span class="num">10+</span>
+                        <span class="lab">Géneros</span>
+                    </div>
+                    <div class="stat">
+                        <span class="num">100%</span>
+                        <span class="lab">Gratuito</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-visual-side">
+                <div class="book-stack">
+                    {% for libro in libros[:3] %}
+                    <div class="floating-book" style="--i: {{ loop.index }}">
+                        <a href="{{ url_for('detalle_libro', libro_id=libro['id']) }}">
+                            <img src="{{ libro['image'] if libro['image'] else 'https://via.placeholder.com/150x220' }}" alt="{{ libro['title'] }}">
+                        </a>
+                    </div>
+                    {% else %}
+                        <div class="floating-book" style="--i: 1"><div class="placeholder-book">📚</div></div>
+                        <div class="floating-book" style="--i: 2"><div class="placeholder-book">📖</div></div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="section-top">
+            <div class="titles">
+                <span class="tag">Catálogo</span>
+                <h2>Títulos Recentes</h2>
+            </div>
+            <a href="{{ url_for('explorar') }}" class="view-all">Ver todos os livros <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="books-grid">
+            {% for libro in libros %}
+            <article class="home-book-card">
+                <div class="card-img">
+                    <img src="{{ libro['image'] if libro['image'] else 'https://via.placeholder.com/150x220/f0e8df/eb7e25?text=📚' }}" alt="{{ libro['title'] }}">
+                    <div class="card-overlay">
+                        <a href="{{ url_for('detalle_libro', libro_id=libro['id']) }}" class="btn-quick">Ler agora</a>
+                    </div>
+                </div>
+                <div class="card-info">
+                    <span class="genre">{{ libro['genre'] }}</span>
+                    <h3>{{ libro['title'] }}</h3>
+                    <p class="author">Por {{ libro['username'] }}</p>
+                </div>
+            </article>
+            {% else %}
+                <p class="empty">O catálogo está a ser atualizado. <a href="{{ url_for('publicar') }}">Sê o primeiro a publicar!</a></p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="genres-section">
+        <div class="content-section">
+            <div class="section-top">
+                <h2>Explorar por Género</h2>
+            </div>
+            <div class="genres-pills">
+                {% for icon, genre in [('🚀','Ciencia Ficción'),('🧙','Fantasía'),('💕','Romance'),('🔪','Thriller'),('👻','Terror'),('🌊','Aventura'),('📖','Novela'),('✨','Contemporáneo')] %}
+                <a href="{{ url_for('explorar') }}?genre={{ genre }}" class="genre-item">
+                    <span class="icon">{{ icon }}</span>
+                    <span class="name">{{ genre }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <p>&copy; 2026 <strong>Bookio</strong> · Inspirando novos leitores</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/cabecalho.js') }}"></script>
+</body>
+</html>

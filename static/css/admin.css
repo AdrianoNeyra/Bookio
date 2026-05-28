@@ -1,0 +1,308 @@
+:root {
+    --sidebar-bg: #ffffff;
+    --admin-accent: #eb7e25;
+    --admin-bg: #f1f5f9;
+    --text-main: #334155;
+}
+
+body.admin-body {
+    display: flex;
+    background: var(--admin-bg);
+    font-family: 'DM Sans', sans-serif;
+    margin: 0;
+}
+
+.admin-sidebar {
+    width: 200px;
+    background: var(--sidebar-bg);
+    color: white;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.admin-logo {
+    padding: 2rem;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--admin-accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-nav .nav-link {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 1rem 2rem;
+    color: #94a3b8;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.admin-nav .nav-link:hover, .admin-nav .nav-link.active {
+    background: #f1f5f9;
+    color: black;
+}
+
+.admin-nav .nav-link.active { 
+    border-left: 4px solid var(--admin-accent);
+    
+}
+
+.admin-content { flex: 1; padding: 2rem; }
+
+.admin-header {
+    margin-bottom: 20px;
+}
+.admin-header h1 {
+    margin: 0 0 10px 0;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+}
+
+.card-header {
+    padding: 15px 25px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.badge {
+    text-align: center;
+    align-self: center;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th, .admin-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-actions-cell .action-group {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+/* Colores de los botones */
+.btn-icon.promote {
+    background-color: #dcfce7;
+    color: #166534;
+}
+.btn-icon.promote:hover { background-color: #bbf7d0; }
+
+/* Botón de Banear (Naranja/Amarillo) */
+.btn-icon.ban {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+.btn-icon.ban:hover { background-color: #fde68a; }
+
+.btn-icon.unban {
+    background-color: #e0f2fe; /* Azul claro */
+    color: #0369a1;
+}
+.btn-icon.unban:hover { background-color: #bae6fd; }
+
+/* Botón de Eliminar (Rojo fuerte) */
+.btn-icon.delete {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+.btn-icon.delete:hover { background-color: #fecaca; }
+
+.rank-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.rank-badge.admin {
+    background: #fef3c7;
+    color: #92400e; /* Dorado/Naranja para Admin */
+    border: 1px solid #f59e0b;
+}
+
+.rank-badge.user {
+    background: #f1f5f9;
+    color: #475569; /* Gris para usuarios normales */
+    border: 1px solid #cbd5e1;
+}
+
+/* Libros en Admin */
+.books-admin-grid { padding: 1.5rem; }
+
+.admin-book-item {
+    border: 1px solid #e2e8f0;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.book-main-info {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Espacio entre imagen y texto */
+    margin-bottom: 15px;
+}
+
+/* Sobrescribimos el width 100% solo para el admin */
+.card-image-admin {
+    width: 50px; /* Tamaño fijo para la lista */
+    height: 75px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0; /* Evita que la imagen se aplaste */
+}
+
+.mini-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border: 1px solid #e2e8f0;
+}
+
+.admin-chapters-details {
+    background: #f8fafc;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+}
+
+/* === CONTROL DE TEXTOS LARGOS (MÉTODO FLEXIBLE NATIVO) === */
+
+.admin-comment-preview-wrapper {
+    position: relative;
+    max-width: 380px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Estado inicial colapsado: cortamos a 3 líneas exactas */
+.admin-comment-text {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 8px 10px 8px 28px;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: #495057;
+    font-style: italic;
+    position: relative;
+    
+    /* 🚨 ESTO OBLIGA AL TEXTO A IR HACIA ABAJO Y NO A LA DERECHA */
+    white-space: normal !important;  /* Permite saltos de línea normales */
+    word-break: break-word !important; /* Rompe palabras largas si es necesario */
+    overflow-wrap: anywhere !important; /* Asegura compatibilidad moderna */
+
+    /* Cortamos por líneas de texto para el estado colapsado */
+    display: -webkit-box;
+    -webkit-line-clamp: 3; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Icono de la comilla */
+.admin-comment-text .quote-icon {
+    position: absolute;
+    top: 9px;
+    left: 8px;
+    color: #ced4da;
+    font-size: 1rem;
+}
+
+/* 🚨 CUANDO EL CHECKBOX SE ACTIVA: Rompemos el candado por completo */
+.admin-comment-checkbox:checked ~ .admin-comment-text {
+    display: block !important;
+    overflow: visible !important;
+    max-height: none !important; /* Eliminamos cualquier límite de píxeles */
+    background-color: #ffffff;
+    border-color: #dee2e6;
+}
+
+/* --- TEXTO DINÁMICO DEL BOTÓN --- */
+.btn-admin-comment-expand {
+    background: none;
+    border: none;
+    color: #3498db;
+    font-size: 0.78rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 2px 0;
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.btn-admin-comment-expand:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+/* Texto inicial */
+.btn-admin-comment-expand::before {
+    content: "Ver tudo";
+}
+
+/* Texto expandido */
+.admin-comment-checkbox:checked ~ .btn-admin-comment-expand::before {
+    content: "Colapsar";
+}
+
+.admin-cap-list { list-style: none; padding: 0.5rem 0; margin: 0; }
+.admin-cap-list li {
+    display: flex; justify-content: space-between;
+    font-size: 0.85rem; padding: 4px 0; border-bottom: 1px dashed #cbd5e1;
+}
+
+.badge-report-count { background-color: #e74c3c; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.75rem; margin-left: 5px; font-weight: bold; }
+.badge-type { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; display: inline-flex; align-items: center; gap: 5px; }
+.badge-type.book { background-color: #d5f5e3; color: #1e8449; }
+.badge-type.user { background-color: #ebdef0; color: #7d3c98; }
+.badge-type.comment { background-color: #fcf3cf; color: #b7950b; }
+.badge-type.chapter { background-color: #e8f8f5; color: #117a65; }
+.meta-subtext { font-size: 0.8rem; color: #7f8c8d; display: block; margin-top: 3px; }
+.reason-cell { max-width: 250px; word-wrap: break-word; font-size: 0.9rem; color: #34495e; }
+.no-reports-box { text-align: center; padding: 30px; color: #95a5a6; font-size: 0.95rem; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.text-danger { color: #ef4444; border: none; background: none; cursor: pointer; }
+.btn-delete-full { margin-top: 1rem; background: #fee2e2; color: #b91c1c; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
+
+table rows, 
+.reason-cell, 
+td {
+    height: auto !important;
+    overflow: visible !important;
+    vertical-align: top; /* Alinea el contenido arriba para que no se descentre al crecer */
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookio — {{ 'Editar' if editando else 'Escrever' }} Capítulo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/criar_cap.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<header class="site-header">
+    <div class="header-container">
+        <a href="{{ url_for('detalle_libro', libro_id=libro.id) }}" class="back-link">
+            <i class="fas fa-chevron-left"></i> Voltar ao Livro
+        </a>
+        <div class="book-info-header">
+            <span class="book-title-tag">Livro: <strong>{{ libro.title }}</strong></span>
+        </div>
+        <div class="user-profile">
+            <span><i class="fas fa-user-circle"></i> {{ session['username'] }}</span>
+        </div>
+    </div>
+</header>
+
+<main class="editor-container">
+    <aside class="chapters-sidebar">
+        <div class="sidebar-header">
+            <h3>Capítulos</h3>
+            <a href="{{ url_for('novo_capitulo', libro_id=libro.id) }}" class="btn-add-sm" title="Novo capítulo">
+                <i class="fas fa-plus"></i>
+            </a>
+        </div>
+        
+        <nav class="chapters-list">
+            {% for cap in capitulos %}
+                <a href="{{ url_for('editar_capitulo', capitulo_id=cap.id) }}" 
+                   class="chapter-item {% if editando and capitulo.id == cap.id %}active{% endif %}">
+                    <i class="fas fa-book-open"></i> {{ cap.title }}
+                </a>
+            {% else %}
+                <div class="chapter-item empty">Ainda não há capítulos.</div>
+            {% endfor %}
+            
+            {% if not editando %}
+                <div class="chapter-item active"><i class="fas fa-plus-circle"></i> Novo Capítulo</div>
+            {% endif %}
+        </nav>
+    </aside>
+
+    <section class="editor-section">
+        <form action="{{ url_for('editar_capitulo', capitulo_id=capitulo.id) if editando else url_for('novo_capitulo', libro_id=libro.id) }}" method="POST">
+            
+            <div class="editor-header">
+                <input type="text" name="title" class="input-title" 
+                       placeholder="Título do Capítulo (ex: Capítulo 1)" 
+                       value="{{ capitulo.title if editando else '' }}" required>
+            </div>
+
+            <div class="editor-body">
+                <textarea name="content" id="editor" class="input-content" 
+                          placeholder="Era uma vez..." required>{{ capitulo.content if editando else '' }}</textarea>
+            </div>
+
+            <div class="editor-footer">
+                <p class="word-count">Palavras: <span id="wordNum">0</span></p>
+                <div class="editor-actions">
+                    <a href="{{ url_for('detalle_libro', libro_id=libro.id) }}" class="btn btn-alt">Cancelar</a>
+                    <button type="submit" class="btn btn-main">
+                        <i class="fas fa-save"></i> {{ 'Atualizar' if editando else 'Guardar' }} Capítulo
+                    </button>
+                </div>
+            </div>
+        </form>
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='js/criar_cap.js') }}"></script>
+</body>
+</html>

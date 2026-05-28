@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookio — {% if editando %}Editar{% else %}Publicar{% endif %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/publicar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabecalho.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bookio">
+                <a href="{{ url_for('index') }}">Bookio</a>
+            </div>
+            
+            <nav class="user-nav">
+                <a href="{{ url_for('publicar') }}" class="nav-item"><i class="fa-solid fa-plus"></i> Publicar</a>
+                <a href="{{ url_for('explorar') }}" class="nav-item"><i class="fa-solid fa-compass"></i> Explorar</a>
+                <a href="{{ url_for('biblioteca') }}" class="nav-item"><i class="fas fa-book-reader"></i> Biblioteca</a>
+            </nav>
+
+            {% if session.get('user_id') %}
+                <a class="user-btn nav-item" href="{{ url_for('perfil') }}">
+                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="Perfil">
+                    <span>{{ session['username'] }}</span>
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="nav-item">Iniciar Sessão</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="creation-container">
+
+        <section class="form-section">
+            <div class="form-header">
+                <h1>{% if editando %}Editar eBook{% else %}Publicar novo eBook{% endif %}</h1>
+                <p>{% if editando %}Atualiza os detalhes do teu livro.{% else %}Completa os detalhes para adicionar o teu livro ao catálogo.{% endif %}</p>
+            </div>
+
+            <form id="createBookForm"
+                  action="{% if editando %}{{ url_for('editar_libro', libro_id=libro.id) }}{% else %}/upload{% endif %}"
+                  method="POST" enctype="multipart/form-data">
+
+                {% if not editando %}
+                <input type="hidden" name="next_url" value="{{ request.referrer or url_for('explorar') }}">
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="bookTitle">Título do Livro *</label>
+                    <input type="text" id="bookTitle" name="title"
+                           placeholder="Ex: Crónicas da Galáxia"
+                           value="{{ libro.title if editando else '' }}" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Géneros * <small>(Seleciona um ou mais)</small></label>
+                        <div class="genre-grid">
+                            {% for g in lista_generos %}
+                            <div class="genre-item">
+                                <input type="checkbox" name="genres" value="{{ g.id }}" id="genre-{{ g.id }}"
+                                    {% if g.id in generos_del_libro %}checked{% endif %}>
+                                <label for="genre-{{ g.id }}">{{ g.name }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bookDesc">Sinopse / Descrição *</label>
+                    <textarea id="bookDesc" name="description" rows="6"
+                              placeholder="Escreve um resumo apelativo do livro...">{{ libro.description if editando else '' }}</textarea>
+                    <div class="char-count"><span id="charNum">{{ libro.description|length if editando else 0 }}</span> / 500 caracteres</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Capa do Livro {% if editando %}<span class="label-optional">(deixa vazio para manter a atual)</span>{% endif %}</label>
+                    <div class="upload-zone" id="dropZone">
+                        <input type="file" id="coverUpload" name="cover" accept="image/*" hidden>
+                        <div class="upload-content">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Arrasta a imagem aqui ou <span>clica para procurar</span></p>
+                            <small>Formatos: JPG, PNG (Máx 5MB)</small>
+                        </div>
+                        <img id="imagePreview" src="" alt=" ">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="#" data-back="true" class="btn-secondary"><i class="fas fa-times"></i> Cancelar</a>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas {% if editando %}fa-save{% else %}fa-rocket{% endif %}"></i>
+                        {% if editando %}Guardar alterações{% else %}Publicar{% endif %}
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="preview-section">
+            <div class="preview-container">
+                <h3>Pré-visualização</h3>
+                <p class="preview-note">Assim ficará o teu livro no catálogo.</p>
+                <article class="ebook-card preview-card">
+                    <div class="card-image">
+                        <img id="cardImgResult"
+                             src="{{ libro.image if editando and libro.image }}"
+                             alt=" ">
+                    </div>
+                    <div class="card-content">
+                        <div class="meta" id="cardGenreResult">{{ libro.genre if editando else 'GÉNERO' }}</div>
+                        <h3 class="title" id="cardTitleResult">{{ libro.title if editando else 'Título do Livro' }}</h3>
+                        <p class="author">{{ session['username'] }}</p>
+                        <div class="price-row">
+                            <span>{% if editando %}Publicado{% else %}Novo{% endif %}</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </aside>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/publicar.js') }}"></script>
+</body>
+</html>

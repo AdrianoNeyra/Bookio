@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ libro.title }} — Bookio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabecalho.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/detalle.css') }}">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bookio">
+                <a href="{{ url_for('index') }}">Bookio</a>
+            </div>
+            <div class="search-bar">
+                <form action="{{ url_for('buscar') }}" method="get">
+                    <input type="search" name="q" placeholder="Buscar títulos...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+            <nav class="user-nav">
+                <a href="{{ url_for('publicar') }}" class="nav-item"><i class="fa-solid fa-plus"></i> Publicar</a>
+                <a href="{{ url_for('explorar') }}" class="nav-item"><i class="fa-solid fa-compass"></i> Explorar</a>
+                <a href="{{ url_for('biblioteca') }}" class="nav-item"><i class="fas fa-book-reader"></i> Biblioteca</a>
+                {% if session.get('user_id') %}
+                <a class="user-btn nav-item" href="{{ url_for('perfil') }}">
+                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="Perfil">
+                    <span>{{ session['username'] }}</span>
+                </a>                
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-item">Iniciar Sessão</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <header class="page-header">
+            <a href="{{ url_for('explorar') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+        </header>
+
+        <div class="book-grid">
+            <aside class="sidebar">
+                <div class="sticky-content">
+                    <img src="{{ libro.image if libro.image else 'https://via.placeholder.com/280x420/f0e8df/eb7e25?text=📚' }}"
+                         alt="{{ libro.title }}" class="main-cover">
+
+                    <a href="{% if capitulos %}{{ url_for('ler_capitulo', capitulo_id=capitulos[0].id) }}{% else %}#{% endif %}" class="btn-read"></i> Começar a ler</a>
+                    {% if session.get('user_id') %}
+                    <button id="btn-favorito"
+                            class="btn-favorito {% if is_favorito %}ativo{% endif %}"
+                            data-id="{{ libro.id }}">
+                        <i class="{% if is_favorito %}fas{% else %}far{% endif %} fa-heart"></i>
+                        <span>{% if is_favorito %}Remover aos favoritos{% else %}Adicionar aos favoritos{% endif %}</span>
+                    </button>
+                    
+                    {% endif %}
+                    {% if session.get('user_id') == libro.user_id %}
+                    <a href="{{ url_for('editar_libro', libro_id=libro.id) }}" class="btn-edit-owner">
+                        <i class="fas fa-edit"></i> Editar livro
+                    </a>
+                    {% if libro.status == 'rejected' and session['user_id'] == libro.author_id %}
+                    <div class="appeal-container">
+                        <p class="text-danger">Este livro foi rejeitado. Se corrigiste os problemas, podes apelar.</p>
+                        <button id="btn-apelar" 
+                                class="btn-appeal" 
+                                data-id="{{ libro.id }}">
+                            <i class="fas fa-gavel"></i> Apelar para Aprovação
+                        </button>
+                    </div>
+                    {% endif %}
+                    <button type="button" id="btn-eliminar-libro" class="btn btn-delete" 
+                            data-id="{{ libro.id }}" 
+                            data-title="{{ libro.title }}"
+                            title="Eliminar este livro permanentemente">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    {% else %}
+                    <button id="open-report-modal" class="btn-trigger-report" title="Denunciar este livro">
+                        <i class="fas fa-flag"></i> Reportar livro
+                    </button>
+                    {% endif %}
+                </div>
+            </aside>
+
+            <main class="content">
+                <span class="genre-badge">{{ libro.genre }}</span>
+                <h1 class="book-title">{{ libro.title }}</h1>
+                
+                <p class="book-author">
+                    <i class="fas fa-user-pen"></i> Publicado por
+                    <a href="{{ url_for('perfil', user_id=libro.user_id) }}" class="author-link">
+                        {{ libro.username if libro.username else 'Autor desconhecido' }}
+                    </a>
+                </p>
+
+                <section class="synopsis">
+                    <h3><i class="fas fa-align-left"></i> Sinopse</h3>
+                    <p>{{ libro.description if libro.description else 'Sem descrição disponível.' }}</p>
+                </section>
+
+                <section class="chapters">
+                    <h3>Capítulos de <span>{{ libro.title }}</span></h3>
+                    <div class="chapter-list">
+                        {% if session.get('user_id') == libro.user_id %}
+                        <a href="{{ url_for('novo_capitulo', libro_id=libro.id) }}" class="btn-add-chapter">
+                            <i class="fas fa-plus-circle"></i> 
+                            <span>Adicionar Capítulo</span>
+                        </a>
+                        {% endif %}
+
+                        {% for cap in capitulos %}
+                        <div class="chapter-item">
+                            <span class="cap-number">{{ loop.index }}</span>
+                            <span class="cap-name" 
+                                data-url="{{ url_for('ler_capitulo', capitulo_id=cap.id) }}" 
+                                onclick="irAlCapitulo(this)">
+                                {{ cap.title }}
+                            </span>
+                            
+                            <div class="chapter-actions">
+                                {% if session.get('user_id') == libro.user_id %}
+                                    <a href="{{ url_for('editar_capitulo', capitulo_id=cap.id) }}" class="btn-edit-cap">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                {% endif %}
+                                <i class="fas fa-play-circle btn-play-cap" 
+                                    data-url="{{ url_for('ler_capitulo', capitulo_id=cap.id) }}" 
+                                    onclick="window.location.href=this.getAttribute('data-url')"
+                                    style="cursor: pointer;">
+                                </i>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                <section class="comments-section">
+                    <h2><i class="fas fa-comments"></i> Comentários ({{ total_comentarios }})</h2>
+
+                    <div class="comment-form-container">
+                        {% if session.get('user_id') %}
+                            <form action="{{ url_for('agregar_comentario', libro_id=libro['id']) }}" method="POST" class="comment-form">
+                                <div class="form-group">
+                                    <textarea name="content" rows="3" placeholder="Escreve o teu comentário sobre este livro..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn-submit-comment">
+                                    <i class="fas fa-paper-plane"></i> Publicar
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="comment-login-prompt">
+                                <p><i class="fas fa-lock"></i> Precisa de iniciar sessão para deixar un comentário.</p>
+                                <a href="{{ url_for('login') }}" class="btn-login-link">Iniciar Sessão</a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <hr class="comment-separator">
+
+                    <div class="comments-list" id="comments-container">
+                    {% for comentario in comentarios %}
+                        <div class="comment-card">
+                            <div class="comment-header">
+                                <span class="comment-author"><i class="fas fa-user-circle"></i> {{ comentario['username'] }}</span>
+                                <span class="comment-date">
+                                    <button class="btn-report-comment-trigger" data-id="{{ comentario['id'] }}" title="Reportar este comentário">
+                                        <i class="far fa-flag"></i>
+                                    </button>
+                                    <i class="fas fa-calendar-alt"></i> {{ comentario['created_at'] }}
+                                </span>
+                            </div>
+                            <div class="comment-body">
+                                <div class="comment-text-container" data-full-text="{{ comentario['content'] }}">
+                                    <p class="comment-text-content">{{ comentario['content'] }}</p>
+                                </div>
+                                <button class="btn-toggle-expand" style="display: none;"></button>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="empty-comments">
+                            <i class="far fa-comment-dots"></i>
+                            <p>Ainda não há comentários para este livro. Seja o primeiro a comentar!</p>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                {% if comentarios %}
+                <div class="load-more-container" style="text-align: center; margin-top: 20px;">
+                    <button id="btn-load-more" class="btn-login-link" data-libro-id="{{ libro['id'] }}" style="background-color: #eb7e25; cursor: pointer;">
+                        <i class="fas fa-sync-alt"></i> Carregar mais
+                    </button>
+                </div>
+                {% endif %}
+                </section>
+
+                {% if relacionados %}
+                <section class="related-section">
+                    <h3>Livros relacionados</h3>
+                    <div class="related-grid">
+                        {% for rel in relacionados %}
+                        <a href="{{ url_for('detalle_libro', libro_id=rel['id']) }}" class="related-card">
+                            <div class="related-cover">
+                                <img src="{{ rel['image'] if rel['image'] }}" alt="{{ rel['title'] }}">
+                            </div>
+                            <div class="related-info">
+                                <div class="related-genre">{{ rel['genre'] }}</div>
+                                <div class="related-title">{{ rel['title'] }}</div>
+                                <div class="related-author">{{ rel['username'] }}</div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+            </main>
+        </div>
+    </div>
+    <div id="report-modal-overlay" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Denunciar Conteúdo</h3>
+                <button id="close-report-modal" class="btn-close-modal">&times;</button>
+            </div>
+            
+            <form action="{{ url_for('crear_reporte', target_type='book', target_id=libro['id']) }}" method="POST">
+                <div class="modal-body">
+                    <p>Ajuda-nos a entender o que se passa. Seleciona o motivo principal da tua denúncia:</p>
+                    
+                    <div class="form-group">
+                        <select name="reason_select" required>
+                            <option value="">-- Selecione o motivo --</option>
+                            <option value="Plágio">Plágio ou cópia não autorizada</option>
+                            <option value="Conteúdo Inadequado">Conteúdo inadequado ou ofensivo</option>
+                            <option value="Spam">Spam ou Publicidade mórbida</option>
+                            <option value="Outro">Outro motivo...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea name="reason_text" placeholder="Escreve aqui detalhes adicionais que ajudem os moderadores... (opcional)" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" id="btn-cancel-modal" class="btn-modal-secondary">Cancelar</button>
+                    <button type="submit" class="btn-modal-danger">Enviar Denúncia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="comment-report-modal-overlay" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Denunciar Comentário</h3>
+                <button id="close-comment-modal" class="btn-close-modal">&times;</button>
+            </div>
+            
+        <form action="{{ url_for('crear_reporte', target_type='comment') }}" method="POST">
+            <input type="hidden" name="target_id" id="modal-comment-id" value="">
+
+                <div class="modal-body">
+                    <p>Por que motivo estás a denunciar este comentário?</p>
+                    
+                    <div class="form-group">
+                        <select name="reason_select" required>
+                            <option value="">-- Selecione o motivo --</option>
+                            <option value="Linguagem Ofensiva">Linguagem ofensiva ou assédio</option>
+                            <option value="Spam / Publicidade">Spam, links suspeitos ou publicidade</option>
+                            <option value="Spoiler sem aviso">Contém spoilers da história sem aviso</option>
+                            <option value="Outro">Outro motivo...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea name="reason_text" placeholder="Informação adicional para os moderadores... (opcional)" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" id="btn-cancel-comment-modal" class="btn-modal-secondary">Cancelar</button>
+                    <button type="submit" class="btn-modal-danger">Enviar Denúncia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/detalle.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookio — Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</head>
+<body class="admin-body">
+
+<div class="admin-sidebar">
+    <div class="admin-logo">
+        <span>Bookio Admin</span>
+    </div>
+    <nav class="admin-nav">
+        <a href="#users" class="nav-link active" onclick="showTab('users')"><i class="fas fa-users"></i> Usuários</a>
+        <a href="#books" class="nav-link" onclick="showTab('books')"><i class="fas fa-book"></i> Livros</a>
+        <a href="#pending" class="nav-link" onclick="showTab('pending')"><i class="fas fa-clock"></i> Pendentes
+            {% if libros_pendientes %}<span class="badge-report-count">{{ libros_pendientes|length }}</span>{% endif %}
+        </a>
+        <a href="#reports" class="nav-link" onclick="showTab('reports')"><i class="fas fa-gavel"></i> Denúncias
+            {% if reportes %}<span class="badge-report-count">{{ reportes|length }}</span>{% endif %}
+        </a>
+        <a href="{{ url_for('biblioteca') }}" class="nav-link exit"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    </nav>
+</div>
+
+<main class="admin-content">
+    <header class="admin-header">
+        <h1>Painel de Controlo</h1>
+        <div class="admin-user-info">
+            <span>Olá, <strong>{{ session['username'] }}</strong> (Admin)</span>
+        </div>
+    </header>
+
+    <section id="users-tab" class="tab-content active">
+        <div class="card">
+            <div class="card-header">
+                <h2>Lista de Utilizadores</h2>
+                <span class="badge">{{ usuarios|length }} total</span>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Rango</th>
+                        <th>Estado</th> 
+                        <th>Email</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in usuarios %}
+                    <tr>
+                        <td>#{{ user.id }}</td>
+                        <td><strong>{{ user.username }}</strong></td>
+                        <td>
+                            <span class="rank-badge {{ 'admin' if user.user_rank == 'admin' else 'user' }}">
+                                {{ user.user_rank }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-pill {{ 'active' if user.status == 'active' else 'banned' }}">
+                                {{ 'Ativo' if user.status == 'active' else 'Banido' }}
+                            </span>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td class="admin-actions-cell">
+                            <div class="action-group">
+                                {% if user.user_rank == 'user' %}
+                                    <a href="{{ url_for('promover_usuario', usuario_id=user.id) }}" 
+                                    class="btn-icon promote" title="Promover a Admin">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </a>
+                                    {% if user.status != 'banned' %}
+                                        {% if user.id != session['user_id'] %}
+                                            <a href="{{ url_for('admin_ban_user', id=user.id) }}" class="btn-icon ban" title="Banear">
+                                                <i class="fas fa-user-lock"></i>
+                                            </a>
+                                        {% endif %}    
+                                    {% else %}
+                                        {% if user.id != session['user_id'] %}
+                                            <a href="{{ url_for('admin_unban_user', id=user.id) }}" class="btn-icon unban" title="Desbanear">
+                                                <i class="fas fa-user-check"></i>
+                                            </a>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if user.id != session['user_id'] %}
+                                        <button type="button" 
+                                                class="btn-icon delete" 
+                                                data-url="{{ url_for('admin_delete_user', id=user.id) }}"
+                                                onclick="confirmarEliminarUser(this)" 
+                                                title="Excluir">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    {% endif %}
+                                {% else %}
+                                    <span>—</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="books-tab" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h2>Lista de Livros</h2>
+            </div>
+            <div class="books-admin-grid">
+                {% for libro in libros %}
+                <div class="admin-book-item">
+                    <div class="book-main-info">
+                        <div class="card-image-admin"> <img src="{{ libro['image'] if libro['image'] else 'https://via.placeholder.com/150x220/fff3e8/eb7e25?text=📚' }}"
+                                alt="{{ libro['title'] }}" 
+                                class="mini-cover"> </div>
+                        <div>
+                            <h3>{{ libro.title }}</h3>
+                            <p>Autor: <strong>{{ libro.autor_nombre }}</strong> | ID: #{{ libro.id }}</p>
+                        </div>
+                    </div>
+                    
+                    <details class="admin-chapters-details">
+                        <summary>Ver Capítulos ({{ libro.capitulos|length }})</summary>
+                        <ul class="admin-cap-list">
+                            {% for cap in libro.capitulos %}
+                            <li>
+                                <span>{{ loop.index }}. {{ cap.title }}</span>
+                                <div class="cap-actions">
+                                    <a href="{{ url_for('ler_capitulo', capitulo_id=cap.id) }}" target="_blank"><i class="fas fa-eye"></i></a>
+                                    <button type="button" 
+                                            class="text-danger" 
+                                            data-url="{{ url_for('admin_delete_cap', id=cap.id) }}" 
+                                            onclick="confirmarEliminarCap(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>                                 
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </details>
+
+                    <div class="book-footer-actions">
+                        <button type="button" 
+                                class="btn-delete-full" 
+                                data-url="{{ url_for('admin_delete_book', id=libro.id) }}" 
+                                onclick="confirmarDeleteBook(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>                    
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section id="pending-tab" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h2>Livros pendentes de aprovação</h2>
+                <span class="badge">{{ libros_pendientes|length }} pendentes</span>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Livro</th>
+                        <th>Autor</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for libro in libros_pendientes %}
+                    <tr id="pending-{{ libro.id }}">
+                        <td>
+                            <div class="book-info-cell">
+                                <img src="{{ libro.image }}" class="mini-cover" style="width: 40px; height: 60px; object-fit: cover;">
+                                <strong>{{ libro.title }}</strong>
+                            </div>
+                        </td>
+                        <td><strong>@{{ libro.autor_nombre }}</strong></td>
+                        <td class="admin-actions-cell">
+                            <div class="action-group">
+                                <button class="btn-icon promote" 
+                                        data-url="{{ url_for('admin_approve_book', id=libro.id) }}"
+                                        onclick="aprovarLivro(this)" title="Aprovar">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn-icon delete" 
+                                        data-url="{{ url_for('admin_reject_book', id=libro.id) }}"
+                                        onclick="rejeitarLivro(this)" title="Rejeitar">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <a href="{{ url_for('detalle_libro', libro_id=libro.id) }}" class="btn-icon unban" target="_blank">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="no-reports-box">
+                                <i class="fas fa-check-circle" style="color: #2ecc71; font-size: 2rem; margin-bottom: 8px;"></i>
+                                <p>Não existem livros pendentes para aprovar.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="reports-tab" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h2>Denúncias Ativas</h2>
+                <span class="badge">{{ reportes|length }} pendentes</span>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Alvo Denunciado</th>
+                        <th>Motivo / Descrição</th>
+                        <th>Denunciante / Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reportes %}
+                    <tr>
+                        <td>
+                            <span class="badge-type {{ r.target_type }}">
+                                <i class="fas {% if r.target_type == 'book' %}fa-book{% elif r.target_type == 'user' %}fa-user{% elif r.target_type == 'comment' %}fa-comment{% else %}fa-file-alt{% endif %}"></i>
+                                {{ r.target_type }}
+                            </span>
+                        </td>
+                        
+                        <td>
+                            <strong>ID Ocorrência: #{{ r.target_id }}</strong>
+                            
+                            {% if r.target_type == 'comment' %}
+                                <div class="admin-comment-preview-wrapper">
+                                    <input type="checkbox" id="expand-comment-{{ r.id }}" class="admin-comment-checkbox" style="display: none;">
+                                    
+                                    <div class="admin-comment-text collapsed">
+                                        <i class="fas fa-quote-left quote-icon"></i>
+                                        <span class="text-content">{{ r.objeto_nombre }}</span>
+                                    </div>
+                                    
+                                    <label for="expand-comment-{{ r.id }}" class="btn-admin-comment-expand"></label>
+                                </div>
+                            {% else %}
+                                <span class="meta-subtext">{{ r.objeto_nombre }}</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="reason-cell">{{ r.reason }}</td>
+                        <td>
+                            <strong>@{{ r.denunciante }}</strong>
+                            <span class="meta-subtext"><i class="far fa-clock"></i> {{ r.fecha }}</span>
+                        </td>
+                        <td class="admin-actions-cell">
+                            <div class="action-group">
+                                <form action="{{ url_for('admin_descartar_reporte', report_id=r.id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn-icon unban" title="Ignorar / Descartar denúncia">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('admin_resolver_reporte', report_id=r.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Confirmas a aplicação desta sanção?')">
+                                    <button type="submit" class="btn-icon delete" title="Sancionar conteúdo">
+                                        <i class="fas fa-gavel"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="no-reports-box">
+                                <i class="fas fa-check-circle" style="color: #2ecc71; font-size: 2rem; margin-bottom: 8px;"></i>
+                                <p>Não existem denúncias pendentes para revisão.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

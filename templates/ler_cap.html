@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capítulo {{ index_atual }} — {{ libro.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ler_cap.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="reader-mode">
+
+    <header class="reader-header">
+        <div class="reader-nav-left">
+            <a href="{{ url_for('detalle_libro', libro_id=libro.id) }}" class="btn-back-reader">
+                <span class="desktop-only"><i class="fas fa-chevron-left"></i> Sair da leitura</span>
+            </a>
+        </div>
+        
+        <div class="reader-center-info">
+            <span class="reader-book-title">{{ libro.title }}</span>
+            <span class="reader-cap-title">{{ capitulo.title }}</span>
+        </div>
+
+        <div class="reader-actions">
+            <button id="toggle-theme" title="Mudar tema"><i class="fa-regular fa-moon fa-sm"></i></button>
+        </div>
+    </header>
+
+    <main class="reader-container">
+        <article class="reading-content" id="readable-text">
+            <header class="cap-intro">
+                <p class="cap-meta">Capítulo {{ index_atual }}</p>
+                <h1 class="cap-display-title">{{ capitulo.title }}</h1>
+                <div class="divider"></div>
+            </header>
+
+            <section class="text-body">
+                {{ capitulo.content | safe }}
+            </section>
+
+            <footer class="cap-navigation">
+                {% if anterior_id %}
+                <a href="{{ url_for('ler_capitulo', capitulo_id=anterior_id) }}" class="nav-link prev">
+                    <i class="fas fa-arrow-left"></i>
+                    <div class="nav-text">
+                        <span>Anterior</span>
+                        <strong>Capítulo Anterior</strong>
+                    </div>
+                </a>
+                {% else %}
+                <div class="nav-link disabled"></div>
+                {% endif %}
+
+                {% if siguiente_id %}
+                <a href="{{ url_for('ler_capitulo', capitulo_id=siguiente_id) }}" class="nav-link next">
+                    <div class="nav-text">
+                        <span>Próximo</span>
+                        <strong>Seguinte Capítulo</strong>
+                    </div>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                {% else %}
+                <a href="{{ url_for('detalle_libro', libro_id=libro.id) }}" class="nav-link finish">
+                    <div class="nav-text">
+                        <span>Finalizar</span>
+                        <strong>Voltar ao Índice</strong>
+                    </div>
+                    <i class="fas fa-check-circle"></i>
+                </a>
+                {% endif %}
+            </footer>
+        </article>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/ler_cap.js') }}"></script>
+</body>
+</html>

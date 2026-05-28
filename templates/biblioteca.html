@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookio — A minha biblioteca</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/biblioteca.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bookio">
+                <a href="{{ url_for('index') }}"> Bookio</a>
+            </div>
+            <div class="search-bar">
+                <form action="{{ url_for('buscar') }}" method="get">
+                    <input type="search" name="q" placeholder="Buscar título, autor...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+            <nav class="user-nav">
+                <a href="{{ url_for('publicar') }}" class="nav-item"><i class="fa-solid fa-plus"></i> Publicar</a>
+                <a href="{{ url_for('explorar') }}" class="nav-item"><i class="fa-solid fa-compass"></i> Explorar</a>
+                <a href="{{ url_for('biblioteca') }}" class="nav-item"><i class="fas fa-book-reader"></i> Biblioteca</a>
+                {% if session.get('user_id') %}
+                <a class="user-btn nav-item" href="{{ url_for('perfil') }}">
+                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="Perfil">
+                    <span>{{ session['username'] }}</span>
+                </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-item">Iniciar Sessão</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="library-container">
+        <header class="library-header">
+            <h1>A minha biblioteca</h1>
+            <p>Gere as tuas leituras e publicações pessoais.</p>
+        </header>
+
+        <div class="library-tabs">
+            <button class="tab-btn active" data-tab="mis-libros">
+                <i class="fas fa-book"></i> Os meus livros
+                {% if libros %}<span class="tab-count">{{ libros|length }}</span>{% endif %}
+            </button>
+            <button class="tab-btn" data-tab="favoritos">
+                <i class="fas fa-heart"></i> Favoritos
+                {% if favoritos %}<span class="tab-count">{{ favoritos|length }}</span>{% endif %}
+            </button>
+        </div>
+
+        <section id="mis-libros" class="tab-content active">
+            <div class="book-grid">
+                <a href="{{ url_for('publicar') }}" class="add-new-card">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Criar novo livro</span>
+                </a>
+                {% for libro in libros %}
+                <article class="ebook-card" id="libro-{{ libro['id'] }}">
+                    <a href="{{ url_for('detalle_libro', libro_id=libro['id']) }}">
+                        <div class="card-image">
+                            <img src="{{ libro['image'] if libro['image'] }}" alt="{{ libro['title'] }}">
+                        </div>
+                    </a>
+                    <div class="card-content">
+                        <div class="genre">{{ libro.genre if libro.genre else 'Sem Categoria' }}</div>
+                        <h3 class="title"><a href="{{ url_for('detalle_libro', libro_id=libro['id']) }}">{{ libro['title'] }}</a></h3>
+                        <span class="badge-status {{ libro.status }}">
+                            {% if libro.status == 'pending' %}
+                                <i class="fa-regular fa-clock" style="color: rgb(255, 111, 0);"></i> Pendente
+                            {% elif libro.status == 'approved' %}
+                                <i class="fa-solid fa-circle-check" style="color: rgb(0, 128, 255);"></i> Publicado
+                            {% elif libro.status == 'rejected' %}
+                                <i class="fa-solid fa-circle-xmark" style="color: rgb(255, 0, 0);"></i> Rejeitado
+                            {% endif %}
+                        </span>
+                        <div class="action-buttons">
+                            <a href="{{ url_for('editar_libro', libro_id=libro['id']) }}" class="btn-edit"><i class="fas fa-edit"></i> Editar</a>
+                            <button type="button" class="btn btn-delete" 
+                                    data-id="{{ libro.id }}" 
+                                    data-title="{{ libro.title }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section id="favoritos" class="tab-content">
+            <div class="book-grid">
+                {% for libro in favoritos %}
+                <article class="ebook-card">
+                    <a href="{{ url_for('detalle_libro', libro_id=libro['id']) }}">
+                        <div class="card-image">
+                            <img src="{{ libro['image'] if libro['image'] }}" alt="{{ libro['title'] }}">
+                        </div>
+                    </a>
+                    <div class="card-content">
+                        <div class="genre">{{ libro.genre if libro.genre else 'Sem Categoria' }}</div>
+                        <h3 class="title"><a href="{{ url_for('detalle_libro', libro_id=libro['id']) }}">{{ libro['title'] }}</a></h3>
+                        <p class="author-label">{{ libro['username'] }}</p>
+                        <div class="action-buttons">
+                            <a href="{{ url_for('detalle_libro', libro_id=libro['id']) }}" class="btn-edit"><i class="fas fa-book-open"></i> Ler</a>
+                            <button type="button" 
+                                    class="btn btn-unfav btn-unfav-ajax" 
+                                    data-id="{{ libro.id }}" 
+                                    onclick="toggleFavoritoBiblioteca(this)">
+                                <i class="fas fa-heart-broken"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                {% else %}
+                <div class="empty-tab">
+                    <i class="fas fa-heart"></i>
+                    <p>Ainda não adicionaste favoritos.</p>
+                    <a href="{{ url_for('explorar') }}">Explorar livros →</a>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/biblioteca.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user_profile.username }} — Bookio</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabecalho.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bookio">
+                <a href="{{ url_for('index') }}">Bookio</a>
+            </div>
+            <nav class="user-nav">
+                <a href="{{ url_for('publicar') }}" class="nav-item"><i class="fa-solid fa-plus"></i> Publicar</a>
+                <a href="{{ url_for('explorar') }}" class="nav-item"><i class="fa-solid fa-compass"></i> Explorar</a>
+                <a href="{{ url_for('biblioteca') }}" class="nav-item"><i class="fas fa-book-reader"></i> Biblioteca</a>
+            </nav>
+            {% if session.get('user_id') %}
+                <div class="user-btn nav-item">
+                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="Perfil">
+                    <span>{{ session['username'] }}</span>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="nav-item">Iniciar Sessão</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="profile-hero">
+        <div class="profile-inner">
+            <div class="avatar-wrap">
+                <div class="avatar">
+                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="{{ user_profile.username }}">
+                </div>
+            </div>
+            <div class="profile-info">
+                <h1>{{ user_profile.username }}</h1>
+                <p class="username-handle">@{{ user_profile.username_lower }}</p>
+                <div class="profile-stats">
+                    <div class="p-stat">
+                        <span class="n">{{ livros | length }}</span>
+                        <span class="l">Publicações</span>
+                    </div>
+                </div>
+            </div>
+            {% if is_own %}
+            <div class="profile-actions">
+                <a href="{{ url_for('biblioteca') }}" class="btn-lib">
+                    <i class="fas fa-book-reader"></i> Minha biblioteca
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="section-label">Obras publicadas</div>
+        <h2 class="section-title">Livros de {{ user_profile.username }}</h2>
+
+        <div class="book-grid">
+            {% for libro in livros %}
+            <a href="{{ url_for('detalle_libro', libro_id=libro['id']) }}" class="ebook-card">
+                <div class="card-image">
+                    <img src="{{ libro['image'] if libro['image'] else 'https://via.placeholder.com/150x220/fff3e8/eb7e25?text=📚' }}"
+                        alt="{{ libro['title'] }}">
+                </div>
+                <div class="card-content">
+                    <div class="genre">{{ libro['genre'] }}</div>
+                    <div class="card-title">{{ libro['title'] }}</div>
+                </div>
+            </a>
+            {% else %}
+            <div class="empty">
+                <i class="fas fa-book-open"></i>
+                <p>Ainda não publicou nenhum livro.</p>
+                {% if is_own %}
+                <a href="{{ url_for('publicar') }}">Publica o teu primeiro livro →</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/cabecalho.js') }}"></script>
+</body>
+</html>

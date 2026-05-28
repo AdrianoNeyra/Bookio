@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookio — Acesso</title>
+    
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="auth-page">
+
+    <main class="auth-container">
+        <section class="auth-visual">
+            <div class="visual-logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+                <span>Bookio</span>
+            </div>
+            
+            <div class="visual-content">
+                <h2>Bem-vindo de<br>volta a <span class="destacado">Bookio</span></h2>
+                <p>A tua próxima grande aventura começa com um clique. Acede a milhares de títulos digitais.</p>
+                <div class="visual-dots">
+                    <span class="active"></span><span></span><span></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="auth-form-box">
+            
+            <form id="loginForm" class="auth-form {% if not active_form or active_form == 'login' %}active{% endif %}" method="POST" action="{{ url_for('login') }}">
+                <header>
+                    <h3>Olá de novo!</h3>
+                    <span class="subtitle">Insere os teus dados para continuar.</span>
+                </header>
+
+                <div class="input-group">
+                    <label for="loginEmail">Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" name="loginEmail" id="loginEmail" placeholder="email@exemplo.com" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="loginPass">Palavra-passe</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="loginPass" id="loginPass" placeholder="••••••••" required>
+                    </div>
+                    <div class="form-links">
+                        <a href="#" class="link" data-form="rp1">Esqueceste a palavra-passe?</a>
+                        <a href="#" class="link" data-form="register">Criar uma conta</a>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth">
+                    <i class="fas fa-arrow-right-to-bracket"></i> Entrar
+                </button>
+
+                <div class="divider"><span>Ou aceder com</span></div>
+
+                <div class="social-auth">
+                    <button type="button" class="btn-google">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="18">
+                        Google
+                    </button>
+                </div>
+            </form>
+
+            <form id="registerForm" class="auth-form {% if active_form == 'register' %}active{% endif %}" method="POST" action="{{ url_for('register') }}">
+                <h3>Cria a tua conta</h3>
+                <span class="subtitle">Junta-te à nossa comunidade de leitores.</span>
+                <span id="error"></span>
+
+                <div class="input-group">
+                    <label for="regName">Nome de utilizador</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="regName" id="regName" placeholder="O teu nome" required minlength="3" maxlength="20">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="regEmail">Email</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" name="regEmail" id="regEmail" placeholder="email@exemplo.com" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="regPass">Palavra-passe</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="regPass" id="regPass" placeholder="Mínimo 6 caracteres" required>
+                    </div>
+                </div>
+
+                <div class="terms">
+                    <label><input type="checkbox" required> Aceito os <a href="#">Termos e Condições</a></label>
+                </div>
+
+                <button type="submit" class="btn-auth">Criar Conta</button>
+                
+                <div class="divider"><span>Ou</span></div>
+                <a href="#" class="link-centered" data-form="login">Já tens conta? Iniciar Sessão</a>
+            </form>
+
+            <form id="RPForm1" class="auth-form {% if active_form == 'rp1' %}active{% endif %}" method="POST" action="{{ url_for('forgot_password') }}">
+                <h3>Recuperar Palavra-passe</h3>
+                <span class="subtitle">Insere o email da conta a recuperar.</span>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" name="email" id="RPEmail" placeholder="email@exemplo.com" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-auth" id="btn-next-rp1">Enviar Código</button>
+                <a href="#" class="link-centered" data-form="login">← Voltar</a>
+            </form>
+            
+            <form id="RPForm2" class="auth-form {% if active_form == 'rp2' %}active{% endif %}" method="POST" action="{{ url_for('verify_code') }}">
+                <h3>Verificar Código</h3>
+                <span class="subtitle">Insere o código de 6 dígitos enviado para o teu email.</span>
+                
+                <div class="input-group">
+                    <label for="rpCode">Código de Segurança</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-key"></i>
+                        <input type="text" name="code" id="rpCode" placeholder="123456" required maxlength="6" style="text-align: center; letter-spacing: 5px; font-size: 18px;">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="rpNewPass">Nova Palavra-passe</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" id="rpNewPass" placeholder="Mínimo 6 caracteres" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth" id="btn-submit-rp2">Alterar Palavra-passe</button>
+                <a href="#" class="link-centered" data-form="rp1">← Reenviar código</a>
+            </form>
+
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>
