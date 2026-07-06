@@ -4,52 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ user_profile.username }} — Bookio</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabecalho.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
-    <header class="site-header">
-        <div class="header-container">
-            <div class="logo">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bookio">
-                <a href="{{ url_for('index') }}">Bookio</a>
-            </div>
-            <nav class="user-nav">
-                <a href="{{ url_for('publicar') }}" class="nav-item"><i class="fa-solid fa-plus"></i> Publicar</a>
-                <a href="{{ url_for('explorar') }}" class="nav-item"><i class="fa-solid fa-compass"></i> Explorar</a>
-                <a href="{{ url_for('biblioteca') }}" class="nav-item"><i class="fas fa-book-reader"></i> Biblioteca</a>
-            </nav>
-            {% if session.get('user_id') %}
-                <div class="user-btn nav-item">
-                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="Perfil">
-                    <span>{{ session['username'] }}</span>
-                </div>
-            {% else %}
-                <a href="{{ url_for('login') }}" class="nav-item">Iniciar Sessão</a>
-            {% endif %}
-        </div>
-    </header>
+    {% include 'header.html' %}
 
     <div class="profile-hero">
         <div class="profile-inner">
-            <div class="avatar-wrap">
-                <div class="avatar">
-                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="{{ user_profile.username }}">
+            
+            <form id="avatar-form" action="{{ url_for('atualizar_perfil') }}" method="POST" enctype="multipart/form-data" style="margin: 0;">
+                <div class="avatar-upload-section">
+                    <label for="avatar-file" class="avatar-preview-label" title="Alterar Foto de Perfil">
+                        <div class="avatar-wrap">
+                            <div class="avatar">
+                                {% if user_profile.avatar %}
+                                    <img id="avatar-preview" src="{{ user_profile.avatar }}" alt="{{ user_profile.username }}">
+                                {% else %}
+                                    <img id="avatar-preview" src="{{ url_for('static', filename='assets/User-nophoto.png') }}" alt="{{ user_profile.username }}">
+                                {% endif %}
+                                
+                                <div class="avatar-edit-overlay">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                    <input type="file" id="avatar-file" name="avatar" accept="image/*" style="display: none;">
                 </div>
-            </div>
+            </form>
+            
             <div class="profile-info">
-                <h1>{{ user_profile.username }}</h1>
-                <p class="username-handle">@{{ user_profile.username_lower }}</p>
+                <div class="profile-username">
+                    <h1>{{ user_profile.username }}</h1>
+                    <button type="button" id="open-username-modal" class="btn-trigger-edit" title="Editar nome de utilizador">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                </div>
+
+                <p class="username-handle">
+                    Membro desde: {{ user_profile['created_at'].strftime('%d/%m/%Y') if user_profile['created_at'] else 'N/A' }}
+                </p>
+                
                 <div class="profile-stats">
                     <div class="p-stat">
-                        <span class="n">{{ livros | length }}</span>
-                        <span class="l">Publicações</span>
+                        <span class="n">{{ total_livros }}</span>
+                        <span class="l">Livros criados</span>
+                    </div>
+                    <div class="p-stat">
+                        <span class="n">{{ total_capitulos }}</span>
+                        <span class="l">Capítulos</span>
+                    </div>
+                    <div class="p-stat">
+                        <span class="n">{{ total_comentarios }}</span>
+                        <span class="l">Comentários</span>
                     </div>
                 </div>
             </div>
+
             {% if is_own %}
             <div class="profile-actions">
                 <a href="{{ url_for('biblioteca') }}" class="btn-lib">
@@ -60,6 +75,29 @@
                 </a>
             </div>
             {% endif %}
+        </div>
+    </div>
+
+    <div id="username-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Alterar nome de utilizador</h3>
+                <button type="button" id="close-username-modal" class="btn-close-modal">&times;</button>
+            </div>
+            
+            <form action="{{ url_for('atualizar_perfil') }}" method="POST">
+                <div class="modal-body">
+                    <div class="form-group-modal">
+                        <label for="modal-username-input">Novo nome de utilizador:</label>
+                        <input type="text" id="modal-username-input" name="username" value="{{ user_profile.username }}" required autocomplete="off">
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" id="cancel-username-modal" class="btn-modal-cancel">Cancelar</button>
+                    <button type="submit" class="btn-modal-save">Salvar</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -90,7 +128,6 @@
             {% endfor %}
         </div>
     </div>
-
-    <script src="{{ url_for('static', filename='js/cabecalho.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/perfil.js') }}"></script>
 </body>
 </html>

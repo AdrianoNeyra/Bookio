@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookio — {{ 'Editar' if editando else 'Escrever' }} Capítulo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/criar_cap.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -12,13 +13,10 @@
 <header class="site-header">
     <div class="header-container">
         <a href="{{ url_for('detalle_libro', libro_id=libro.id) }}" class="back-link">
-            <i class="fas fa-chevron-left"></i> Voltar ao Livro
+            <i class="fa-solid fa-chevron-left"></i>
         </a>
         <div class="book-info-header">
-            <span class="book-title-tag">Livro: <strong>{{ libro.title }}</strong></span>
-        </div>
-        <div class="user-profile">
-            <span><i class="fas fa-user-circle"></i> {{ session['username'] }}</span>
+            <span class="book-title-tag"><strong>{{ libro.title }}</strong></span>
         </div>
     </div>
 </header>

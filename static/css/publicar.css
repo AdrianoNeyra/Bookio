@@ -15,15 +15,6 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* ── FLASH ──────────────────────────────── */
-.flash-container { position: fixed; top: 80px; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 360px; }
-.flash { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; font-size: .88rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,.1); animation: slideInR .3s ease; }
-@keyframes slideInR { from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);} }
-.flash-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
-.flash-error   { background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; }
-.flash-close { margin-left: auto; background: none; border: none; color: inherit; cursor: pointer; opacity: .5; padding: 0; }
-.flash-close:hover { opacity: 1; }
-
 /* ── LAYOUT ─────────────────────────────── */
 .creation-container { max-width: 1200px; margin: 2.5rem auto; display: grid; grid-template-columns: 1.6fr 1fr; gap: 2.5rem; padding: 0 2rem 5rem; align-items: start; }
 
@@ -65,11 +56,11 @@ input:focus, textarea:focus, select:focus {
     display: flex;
     align-items: center;
     gap: 10px;
-    transition: transform 0.2s;
+    transition: transform 0.2s ease-in-out;
 }
 
 .genre-item:hover {
-    transform: translateX(5px); /* Un pequeño efecto visual al pasar el ratón */
+    transform: translateX(3px); /* Un pequeño efecto visual al pasar el ratón */
 }
 
 .genre-item input[type="checkbox"] {
@@ -142,6 +133,66 @@ textarea { resize: vertical; max-height: 250px; }
 .price-row { display: flex; justify-content: space-between; margin-top: 8px; align-items: center; font-size: .78rem; color: var(--text-muted); }
 
 @media (max-width: 900px) {
+    /* (Tus reglas actuales se quedan intactas aquí) */
     .creation-container { grid-template-columns: 1fr; }
     .preview-section { order: -1; position: static; margin-bottom: 1.5rem; }
+
+    /* ── 🚨 NUEVOS AJUSTES PARA LA SECCIÓN DE PUBLICACIÓN MÓVIL ── */
+    
+    .creation-container {
+        padding: 0 1rem 3rem; /* Reducimos márgenes laterales */
+        margin: 1rem auto;
+    }
+
+    /* Reducimos el padding interno de las tarjetas */
+    .form-section, .preview-container {
+        padding: 1.5rem 1.25rem;
+        border-radius: 12px; /* Esquinas ligeramente más compactas */
+    }
+
+    .form-header h1 {
+        font-size: 1.7rem; /* Título un poco más adaptado */
+    }
+
+    /* Ajustamos las cajas de texto en pantallas pequeñas */
+    input[type="text"], input[type="number"], select, textarea {
+        padding: 0.75rem 0.9rem;
+        font-size: 0.9rem;
+    }
+
+    /* 🚨 CRÍTICO: La lista de géneros pasa de 2 columnas a 1 sola */
+    .genre-grid {
+        grid-template-columns: 1fr; /* Evita que etiquetas largas se desborden o solapen */
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .genre-item label {
+        font-size: 0.9rem; /* Texto un pelín más compacto para facilitar la lectura */
+    }
+
+    /* Zona de subida de portada */
+    .upload-zone {
+        padding: 2rem 1rem;
+    }
+    .upload-content i {
+        font-size: 2.2rem;
+    }
+    .upload-content p {
+        font-size: 0.85rem;
+    }
+
+    /* 🚨 BOTONES DE ACCIÓN FLUIDOS */
+    .form-actions {
+        flex-direction: column-reverse; /* El botón principal de publicar queda arriba al apilarse */
+        gap: 0.8rem;
+        width: 100%;
+    }
+
+    .btn-primary, .btn-secondary {
+        width: 100%; /* Botones de lado a lado muy fáciles de presionar con el pulgar */
+        justify-content: center;
+        padding: 0.8rem 1.2rem;
+        font-size: 0.9rem;
+    }
 }

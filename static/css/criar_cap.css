@@ -9,9 +9,10 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 
 /* Header Fino */
 .site-header { height: 55px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 1.5rem; background: #fff; }
-.header-container { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-.back-link { text-decoration: none; color: var(--txt-m); font-size: 13px; font-weight: 500; }
-.book-title-tag { font-size: 14px; color: var(--txt); }
+.book-info-header { justify-self: center; text-align: center; }
+.header-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr 1fr; justify-items: center; align-items: center; }
+.back-link { text-decoration: none; color: var(--txt-m); font-size: 13px; font-weight: 500; justify-self: start; }
+.book-title-tag { font-size: 14px; font-size: 0.7rem; text-transform: uppercase; color: var(--p); }
 
 /* Layout Split */
 .editor-container { display: grid; grid-template-columns: 260px 1fr; height: calc(100vh - 55px); }
@@ -67,4 +68,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     .editor-container { grid-template-columns: 1fr; }
     .chapters-sidebar { display: none; }
     .editor-section { padding: 2rem 5%; }
+}
+
+@media (max-width: 768px) {
+
 }

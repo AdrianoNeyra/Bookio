@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termos e Condições - Bookio</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/termos.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="legal-page">
+
+    {% include 'header.html' %}
+
+    <main class="legal-container">
+        <header class="legal-header">
+            <h1>Termos e Condições de Serviço</h1>
+            <p class="last-updated">Última atualização: Junho de 2026</p>
+        </header>
+
+        <article class="legal-content">
+            <p class="legal-lead">
+                Bem-vindo ao <strong>Bookio</strong>. Ao aceder ou utilizar a nossa plataforma, concordas em cumprir e vincular-te aos seguintes Termos e Condições. Por favor, lê-os com atenção antes de utilizar os nossos serviços.
+            </p>
+
+            <hr class="legal-divider">
+
+            <section class="legal-section">
+                <h2>1. Aceitação dos Termos</h2>
+                <p>Ao criar uma conta ou navegar no Bookio, aceitas integralmente estes termos. Se não concordares com alguma das condições aqui expostas, deves cessar imediatamente a utilização da plataforma.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>2. Registo e Segurança da Conta</h2>
+                <p>Para usufruir de certas funcionalidades, como publicar livros ou interagir na biblioteca, deverás criar uma conta. Comprometes-te a:</p>
+                <ul>
+                    <li>Fornecer informações verdadeiras, exatas e atualizadas.</li>
+                    <li>Manter a confidencialidade da tua palavra-passe e dados de sessão.</li>
+                    <li>Notificar-nos imediatamente sobre qualquer uso não autorizado da tua conta.</li>
+                </ul>
+            </section>
+
+            <section class="legal-section">
+                <h2>3. Propriedade Intelectual e Direitos de Autor</h2>
+                <p>No Bookio respeitamos a propriedade intelectual de cada escritor:</p>
+                <ul>
+                    <li><strong>Os teus livros são teus:</strong> Manténs todos os direitos de autor sobre o conteúdo que publicas na plataforma.</li>
+                    <li><strong>Licença de publicação:</strong> Ao submeter conteúdo, concedes ao Bookio uma licença global, não exclusiva e gratuita para alojar, exibir e distribuir a tua obra dentro da nossa aplicação.</li>
+                    <li><strong>Proibição de Plágio:</strong> É estritamente proibido publicar obras das quais não sejas o autor legítimo ou não possuas a devida autorização legal.</li>
+                </ul>
+            </section>
+
+            <section class="legal-section">
+                <h2>4. Conduta do Utilizador</h2>
+                <p>Como membro da nossa comunidade, concordas em não utilizar a plataforma para:</p>
+                <ul>
+                    <li>Publicar conteúdo difamatório, obsceno, abusivo, ameaçador ou que incite ao ódio.</li>
+                    <li>Praticar spam, assédio ou violar a privacidade de outros utilizadores através de comentários.</li>
+                    <li>Tentar corromper o sistema, injetar código malicioso ou extrair dados de forma automatizada.</li>
+                </ul>
+            </section>
+
+            <section class="legal-section">
+                <h2>5. Moderação e Eliminação de Conteúdo</h2>
+                <p>O Bookio reserva-se o direito de remover qualquer livro, capítulo ou comentário que viole estes termos, sem aviso prévio. Da mesma forma, contas reincidentes em comportamentos tóxicos ou plágio poderão ser suspensas permanentemente.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>6. Limitação de Responsabilidade</h2>
+                <p>O Bookio é uma plataforma de alojamento de leitura. Não nos responsabilizamos pela precisão do conteúdo publicado pelos utilizadores, nem por eventuais perdas de dados ou interrupções temporárias do serviço técnico.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>7. Alterações aos Termos</h2>
+                <p>Podemos atualizar estes Termos e Condições periodicamente. Avisaremos sobre mudanças significativas através de uma notificação na plataforma ou alterando a data no topo desta página. O uso continuado do Bookio após as alterações constitui a aceitação dos novos termos.</p>
+            </section>
+
+            <section class="legal-section">
+                <h2>8. Contacto</h2>
+                <p>Se tiveres alguma dúvida ou precisares de reportar uma infração destes termos, contacta o nosso suporte através do email: <a href="mailto:suporte@bookio.com">suporte@bookio.com</a>.</p>
+            </section>
+        </article>
+
+        <footer class="legal-back-actions">
+            <a href="{{ url_for('index') }}" class="btn-back-home">
+                <i class="fas fa-arrow-left"></i> Voltar à Página Inicial
+            </a>
+        </footer>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -4,39 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookio — A minha biblioteca</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/biblioteca.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
-    <header class="site-header">
-        <div class="header-container">
-            <div class="logo">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bookio">
-                <a href="{{ url_for('index') }}"> Bookio</a>
-            </div>
-            <div class="search-bar">
-                <form action="{{ url_for('buscar') }}" method="get">
-                    <input type="search" name="q" placeholder="Buscar título, autor...">
-                    <button type="submit"><i class="fas fa-search"></i></button>
-                </form>
-            </div>
-            <nav class="user-nav">
-                <a href="{{ url_for('publicar') }}" class="nav-item"><i class="fa-solid fa-plus"></i> Publicar</a>
-                <a href="{{ url_for('explorar') }}" class="nav-item"><i class="fa-solid fa-compass"></i> Explorar</a>
-                <a href="{{ url_for('biblioteca') }}" class="nav-item"><i class="fas fa-book-reader"></i> Biblioteca</a>
-                {% if session.get('user_id') %}
-                <a class="user-btn nav-item" href="{{ url_for('perfil') }}">
-                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="Perfil">
-                    <span>{{ session['username'] }}</span>
-                </a>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="nav-item">Iniciar Sessão</a>
-                {% endif %}
-            </nav>
-        </div>
-    </header>
+    {% include 'header.html' %}
 
     <main class="library-container">
         <header class="library-header">
@@ -84,7 +59,8 @@
                             <a href="{{ url_for('editar_libro', libro_id=libro['id']) }}" class="btn-edit"><i class="fas fa-edit"></i> Editar</a>
                             <button type="button" class="btn btn-delete" 
                                     data-id="{{ libro.id }}" 
-                                    data-title="{{ libro.title }}">
+                                    data-title="{{ libro.title }}"
+                                    onclick="abrirModalEliminar(this)">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -128,6 +104,21 @@
             </div>
         </section>
     </main>
+
+    <div id="delete-modal" class="custom-modal-overlay">
+        <div class="custom-modal-box">
+            <div class="modal-icon-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>Eliminar Livro?</h3>
+            <p>Tens a certeza que desejas eliminar <strong id="modal-book-title" style="color: #1a1a1a;"></strong> de forma permanente?</p>
+            
+            <div class="modal-actions-buttons">
+                <button id="btn-modal-cancel" class="btn-modal-secondary">Cancelar</button>
+                <button id="btn-modal-confirm" class="btn-modal-danger">Sim, Eliminar</button>
+            </div>
+        </div>
+    </div>
 
     <script src="{{ url_for('static', filename='js/biblioteca.js') }}"></script>
 </body>

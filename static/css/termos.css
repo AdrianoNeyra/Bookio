@@ -1,0 +1,151 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Asegurar que el header use todo el ancho libre */
+.site-header {
+    width: 100%;
+    margin: 0;
+    /* Si estás usando position: fixed o absolute, asegúrate de añadir: */
+    /* left: 0; */
+    /* top: 0; */
+}
+
+.legal-page {
+    background-color: var(--background, #fcfcfc); /* Fondo ligeramente cálido estilo papel */
+    color: var(--text, #2d2d2d);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+}
+
+.legal-container {
+    max-width: 800px; /* Ancho de lectura óptimo */
+    margin: 4rem auto;
+    padding: 0 1.5rem;
+    box-sizing: border-box;
+}
+
+.legal-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.legal-header h1 {
+    font-size: 2.5rem;
+    color: var(--text-main, #1a1a1a);
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.last-updated {
+    font-size: 0.9rem;
+    color: var(--text-muted, #7c7c7c);
+    font-style: italic;
+}
+
+.legal-content {
+    background: var(--surface, #ffffff);
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.legal-lead {
+    font-size: 1.15rem;
+    color: #4a4a4a;
+    line-height: 1.7;
+}
+
+.legal-divider {
+    border: 0;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.08);
+    margin: 2rem 0;
+}
+
+.legal-section {
+    margin-bottom: 2rem;
+}
+
+.legal-section h2 {
+    font-size: 1.35rem;
+    color: var(--primary, #eb7e25); /* Tu color corporativo naranja */
+    margin-bottom: 0.8rem;
+    font-weight: 600;
+}
+
+.legal-section p {
+    font-size: 1rem;
+    color: #374151;
+    margin-bottom: 1rem;
+    text-align: justify;
+}
+
+.legal-section ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.legal-section li {
+    font-size: 1rem;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    list-style-type: disc;
+}
+
+.legal-section a {
+    color: var(--primary, #eb7e25);
+    text-decoration: none;
+    font-weight: 500;
+}
+.legal-section a:hover {
+    text-decoration: underline;
+}
+
+.legal-back-actions {
+    text-align: center;
+    margin-top: 2.5rem;
+}
+
+.btn-back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-muted, #7c7c7c);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+}
+
+.btn-back-home:hover {
+    color: var(--primary, #eb7e25);
+}
+
+/* ── ADAPTABILIDADE MÓVEL ── */
+@media (max-width: 768px) {
+    .legal-container {
+        margin: 2rem auto;
+    }
+    
+    .legal-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .legal-content {
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+    
+    .legal-lead {
+        font-size: 1rem;
+    }
+    
+    .legal-section p, .legal-section li {
+        font-size: 0.95rem;
+        text-align: left; /* Evita espacios raros en justificado móvil */
+    }
+}

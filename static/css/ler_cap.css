@@ -26,22 +26,35 @@ body {
 .reader-header {
     position: fixed;
     top: 0; width: 100%; height: 60px;
-    display: grid; 
-    padding: 10px 0;
-    grid-template-columns: 1fr 1fr 1fr; 
+    display: flex; 
     align-items: center; 
-    justify-content: space-between;
-    background: rgba(252, 250, 247, 0.9);
+    justify-content: center;
+    background: transparent;
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(0,0,0,0.05);
     z-index: 1000;
-    transition: transform 0.3s;
+    transition: transform 0.3s ease;
 }
 .reader-nav-left {
     padding-left: 60px;
 }
+
+.back {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    padding-left: 60px;
+}
+.back i {
+    font-size: 22px;
+    color: rgb(150, 150, 150);
+}
+
 .reader-actions {
     display: flex;
+    position: absolute;
+    top: 10px;
+    right: 0;
     justify-content: end;
     padding-right: 60px;
 }
@@ -54,26 +67,26 @@ body {
     transition: all .25s;
 }
 #toggle-theme {
+    position: absolute;
     width: 40px;
     height: 40px;
     cursor: pointer;
     border-radius: 50px;
     border: 1px solid var(--reader-bg);
-    background-color: var(--reader-text);
-    color: var(--reader-bg);
+    background-color: transparent;
+    color: var(--reader-text);
     font-size: 22px;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 #toggle-theme:hover{
     transform: scale(1.05) translateY(-3px);
-    box-shadow: 0 0 12px rgba(235,126,37,.35);
 }
 #toggle-theme i { padding-top: 2px; }
 
-body.dark-mode .reader-header { background: rgba(26, 26, 26, 0.9); border-color: rgba(255,255,255,0.05); }
+body.dark-mode .reader-header { border-color: rgba(255,255,255,0.05); }
 
-.reader-center-info { text-align: center; }
-.reader-book-title { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--reader-accent); font-weight: 700; }
+.reader-center-info { text-align: center;}
+.reader-book-title { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--reader-accent); font-weight: 700; }
 .reader-cap-title { font-size: 0.9rem; font-weight: 600; opacity: 0.8; }
 
 /* CONTAINER DE LECTURA */
@@ -102,15 +115,21 @@ body.dark-mode .reader-header { background: rgba(26, 26, 26, 0.9); border-color:
 .cap-navigation {
     margin-top: 5rem;
     padding-top: 2rem;
-    border-top: 1px solid rgba(0,0,0,0.1);
+    border-top: 1px solid rgba(128, 128, 128, 0.1);
     display: flex; justify-content: space-between; gap: 1rem;
 }
 
 .nav-link {
     text-decoration: none; color: inherit;
     display: flex; align-items: center; gap: 1rem;
-    padding: 1rem; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);
+    padding: 1rem; border-radius: 12px; border: 2px solid rgba(128, 128, 128, 0.05);
     transition: 0.2s; width: 48%;
+}
+.nav-link.disabled {
+    opacity: 0.4 !important; /* Lo vuelve opaco/gris */
+    pointer-events: none !important; /* Evita que se pueda hacer clic o interactuar */
+    background-color: var(--border) !important; /* Toma un color de fondo neutro */
+    cursor: not-allowed !important;
 }
 
 .nav-link:hover { border-color: var(--reader-accent); background: rgba(235, 126, 37, 0.05); }
@@ -122,4 +141,164 @@ body.dark-mode .reader-header { background: rgba(26, 26, 26, 0.9); border-color:
 @media (max-width: 600px) {
     .desktop-only { display: none; }
     .cap-display-title { font-size: 2rem; }
+}
+
+@media (max-width: 768px) {
+    
+    /* ── 1. GLOBAL Y FLUJO ── */
+    html, body.reader-mode {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        -webkit-text-size-adjust: 100%; /* Evita que iOS altere el tamaño de fuente */
+    }
+
+    /* ── 2. CABECERA ERGONÓMICA ── */
+    .reader-header {
+        padding: 0 1.2rem !important;
+        height: 60px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important; /* Centra el bloque del título de forma nativa */
+        position: relative !important; /* Permite posicionar el botón de forma absoluta a la derecha */
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* El botón "Sair da leitura" se simplifica en móvil mostrando solo un icono grande */
+    .reader-nav-left .desktop-only {
+        font-size: 0 !important; /* Oculta el texto "Sair da leitura" */
+    }
+    
+    .reader-nav-left .desktop-only i {
+        font-size: 1.25rem !important; /* Agranda la flecha para que sea fácil tocarla */
+        padding: 10px;
+        display: inline-block;
+    }
+
+    /* Información central compacta para que no se encima con los botones */
+    .reader-center-info {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        text-align: center !important;
+        max-width: 70% !important; /* Evita que títulos muy largos pisen el botón de la derecha */
+        overflow: hidden;
+    }
+
+    .reader-book-title {
+        font-size: 1rem !important; /* Tamaño cómodo y legible en móviles */
+        font-weight: 600 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* Añade puntos suspensivos si el título supera el espacio */
+        width: 100%;
+    }
+
+    .back {
+        padding-left: 30px;
+    }
+
+    .reader-actions {
+        position: absolute !important;
+        right: -3rem !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important; /* Centrado vertical exacto */
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    .reader-actions button {
+        padding: 2px 0 0 0.5px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+
+    .reader-cap-title {
+        font-size: 0.88rem !important;
+        font-weight: 600 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+    }
+
+    /* ── 3. CONTENEDOR DE TEXTO OPTIMIZADO PARA LECTURA ── */
+    .reader-container {
+        padding: 4rem 2rem 3rem !important; /* Margen superior cómodo debajo del header */
+        width: 100% !important;
+        margin-top: 2rem;
+        box-sizing: border-box !important;
+    }
+
+    .reading-content {
+        max-width: 100% !important; /* Ocupa todo el espacio de pantalla disponible en smartphones */
+        margin: 0 auto !important;
+    }
+
+    /* Ajustes introductorios del capítulo */
+    .cap-intro {
+        margin-bottom: 2rem !important;
+        text-align: center !important;
+    }
+
+    .cap-meta {
+        font-size: 0.85rem !important;
+        letter-spacing: 1px;
+    }
+
+    .cap-display-title {
+        font-size: 1.8rem !important; /* Evita que el título del artículo rompa la pantalla */
+        line-height: 1.2 !important;
+        margin-top: 0.3rem !important;
+        word-break: break-word;
+    }
+
+    /* Cuerpo de lectura enfocado en la usabilidad móvil */
+    .text-body {
+        font-size: 1.2rem !important; /* Tamaño de letra ideal para lectura móvil (18px aprox) */
+        line-height: 1.75 !important;   /* Interlineado amplio para no cansar la vista */
+        letter-spacing: 0.01em !important;
+    }
+
+    /* Ajuste para los párrafos dentro de la lectura */
+    .text-body p {
+        margin-bottom: 1.4rem !important;
+    }
+
+    /* ── 4. BOTONES DE NAVEGACIÓN INFERIOR (Pulgares cómodos) ── */
+    .cap-navigation {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        gap: 0.8rem !important;
+        margin-top: 3rem !important;
+        padding-top: 1.5rem !important;
+    }
+
+    .nav-link {
+        flex: 1 !important; /* Ambos botones ocupan el mismo espacio equitativo de la pantalla */
+        padding: 0.8rem 0.5rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        border-radius: 8px !important;
+        text-decoration: none !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Simplificación de los textos internos del botón en móviles */
+    .nav-text span {
+        font-size: 0.7rem !important; /* "Anterior" / "Próximo" muy sutil */
+        text-transform: uppercase;
+        display: block;
+    }
+
+    .nav-text strong {
+        font-size: 0.85rem !important; /* Ajuste del título del botón */
+        font-weight: 600 !important;
+        display: block;
+        white-space: nowrap;
+    }
 }

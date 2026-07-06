@@ -25,133 +25,6 @@ body {
     min-height: 100vh; 
 }
 
-/* ── HEADER ── */
-
-.nav-item {
-    font-family: 'DM Sans', sans-serif;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.88rem;
-    letter-spacing: 0.2px;
-    height: 100%;
-    padding: 0 16px;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    transition: color 0.2s, background 0.2s;
-    position: relative;
-    cursor: pointer;
-}
-
-.nav-item i { color: var(--primary); font-size: 0.8rem; }
-.nav-item:hover { color: var(--primary); background: var(--primary-light); }
-
-.nav-item::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 16px; right: 16px;
-    height: 2px;
-    background: var(--primary);
-    transform: scaleX(0);
-    transition: transform 0.25s ease;
-    border-radius: 2px 2px 0 0;
-}
-
-.nav-item:hover::after { transform: scaleX(1); }
-
-.user-btn { display: flex; align-items: center; gap: 8px; }
-.user-btn::after { display: none !important; }
-
-.user-btn img {
-    height: 34px; width: 34px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    object-fit: cover;
-}
-
-.site-header { 
-    background: var(--surface); 
-    border-bottom: 1px solid var(--border-subtle); 
-    box-shadow: 0 1px 8px rgba(0,0,0,0.05); 
-    padding: 0 2rem; 
-    position: sticky; 
-    top: 0; 
-    z-index: 100; 
-    height: 68px; 
-}
-
-.header-container { 
-    max-width: 1400px; 
-    margin: 0 auto; 
-    height: 100%; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    gap: 1.5rem; 
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-}
-
-.logo img { height: 42px; }
-
-.logo a { 
-    font-family: var(--font-serif); 
-    font-size: 1.6rem; 
-    font-weight: 900; 
-    text-decoration: none; 
-    color: var(--text); 
-}
-
-.search-bar form { display: flex; }
-.search-bar input { 
-    padding: 0.55rem 1rem; 
-    background: var(--bg); 
-    border: 1px solid var(--border-subtle); 
-    border-radius: 8px 0 0 8px; 
-    width: 280px; 
-    color: var(--text); 
-    font: 0.88rem var(--font-main); 
-    outline: none; 
-}
-.search-bar input:focus { border-color: var(--primary); }
-.search-bar input::placeholder { color: #c4c9d4; }
-.search-bar button { 
-    background: var(--primary); 
-    color: #fff; 
-    border: none; 
-    padding: 0 1rem; 
-    border-radius: 0 8px 8px 0; 
-    cursor: pointer; 
-}
-
-.user-nav { display: flex; align-items: center; gap: 3px; }
-
-.nav-item { 
-    text-decoration: none; 
-    font-weight: 500; 
-    font-size: 0.88rem; 
-    padding: 0 14px; 
-    height: 68px; 
-    display: flex; 
-    align-items: center; 
-    gap: 7px; 
-    color: var(--text-muted); 
-    transition: all 0.2s ease; 
-    position: relative; 
-}
-
-.nav-item i { color: var(--primary); font-size: 0.8rem; }
-.nav-item:hover { color: var(--primary); background: var(--primary-light); }
-
-.user-profile { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text-muted); }
-
 /* ── LIBRARY LAYOUT ── */
 .library-container { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 5rem; }
 
@@ -336,3 +209,209 @@ body {
 .empty-tab i { display: block; margin-bottom: 1rem; font-size: 2rem; }
 .empty-tab a { color: var(--primary); font-weight: 600; text-decoration: none; }
 .empty-tab a:hover { text-decoration: underline; }
+
+/* ── OVERLAY: Fondo oscuro translúcido ── */
+.custom-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px); /* Suaviza el fondo al estilo iOS/Moderno */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999; /* Por encima de cualquier header o carrusel */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* Clase activa que se añade con JS */
+.custom-modal-overlay.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ── CAJA DEL MODAL ── */
+.custom-modal-box {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px; /* Tamaño ideal de recuadro */
+    text-align: center;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.custom-modal-overlay.is-active .custom-modal-box {
+    transform: scale(1);
+}
+
+/* Elementos internos */
+.modal-icon-warning {
+    font-size: 2.5rem;
+    color: #dc2626; /* Rojo de advertencia */
+    margin-bottom: 1rem;
+}
+
+.custom-modal-box h3 {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+}
+
+.custom-modal-box p {
+    font-size: 0.95rem;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 1.8rem;
+}
+
+/* Botones de Acción */
+.modal-actions-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-modal-secondary, .btn-modal-danger {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+    text-align: center;
+}
+
+.btn-modal-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+.btn-modal-secondary:hover { background: #e5e7eb; }
+
+.btn-modal-danger {
+    background: #dc2626;
+    color: #ffffff;
+}
+.btn-modal-danger:hover { background: #b91c1c; }
+
+@media (max-width: 768px) {
+    
+    /* ── CONTENEDOR GENERAL ── */
+    .library-container {
+        padding: 2rem 1rem 4rem; /* Reducimos márgenes laterales */
+    }
+
+    /* Redimensionado de cabeceras */
+    .library-header {
+        margin-bottom: 1.5rem;
+        text-align: center; /* Centramos el texto para estética móvil */
+    }
+    .library-header h1 {
+        font-size: 1.85rem;
+    }
+    .library-header p {
+        font-size: 0.88rem;
+    }
+
+    /* ── TABS (Pestañas móviles) ── */
+    .library-tabs {
+        margin-bottom: 1.5rem;
+        overflow-x: auto; /* 🚨 CRÍTICO: Si añades más pestañas, el usuario puede arrastrar con el dedo */
+        display: flex;
+        white-space: nowrap;
+        scrollbar-width: none; /* Oculta la barra en Firefox */
+    }
+    .library-tabs::-webkit-scrollbar {
+        display: none; /* Oculta la barra en Chrome/Safari */
+    }
+
+    .tab-btn {
+        padding: 0.8rem 1rem; /* Botones más compactos */
+        font-size: 0.85rem;
+        flex-shrink: 0; /* Evita que el texto se aplaste */
+    }
+
+    /* ── CUADRÍCULA DE LIBROS (2 Columnas perfectas) ── */
+    .book-grid {
+        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); /* Forza 2 libros por fila en casi cualquier móvil */
+        gap: 1rem; /* Espaciado ajustado para pantallas pequeñas */
+    }
+
+    /* ── RE-AJUSTE DE TARJETAS ── */
+    .ebook-card {
+        border-radius: 10px;
+    }
+    /* Desactivamos el efecto hover 'TranslateY' en móvil porque es molesto al hacer scroll táctil */
+    .ebook-card:hover {
+        transform: none; 
+    }
+
+    .card-content {
+        padding: 0.8rem; /* Menos espacio interno */
+    }
+
+    .title {
+        font-size: 0.82rem; /* El título se adapta al espacio de las dos columnas */
+        margin-bottom: 2px;
+    }
+
+    .author-label {
+        font-size: 0.75rem;
+        margin-bottom: 8px;
+    }
+
+    .genre {
+        font-size: 0.6rem;
+    }
+
+    .badge-status {
+        font-size: 11px;
+    }
+
+    /* ── BOTONES DE ACCIÓN (Editar / Eliminar) ── */
+    .action-buttons {
+        gap: 0.4rem;
+        padding-top: 0.6rem;
+    }
+
+    .btn-edit {
+        padding: 0.45rem;
+        font-size: 0.75rem;
+        gap: 3px;
+    }
+    .btn-edit i {
+        font-size: 0.8rem;
+    }
+
+    .btn-delete, .btn-unfav {
+        padding: 0.45rem 0.6rem;
+        font-size: 0.75rem;
+    }
+
+    /* ── TARJETA "AÑADIR NUEVO" ── */
+    .add-new-card {
+        min-height: auto;
+        aspect-ratio: 2/3; /* En móvil imita exactamente la proporción de un libro */
+        gap: 0.5rem;
+        padding: 1rem;
+        text-align: center;
+    }
+    .add-new-card i {
+        font-size: 1.8rem;
+    }
+    .add-new-card span {
+        font-size: 0.78rem;
+    }
+}
+
+/* Ajuste fino para móviles extremadamente delgados (<= 350px) */
+@media (max-width: 350px) {
+    .book-grid {
+        grid-template-columns: 1fr; /* Un libro por fila si el dispositivo es diminuto */
+    }
+}

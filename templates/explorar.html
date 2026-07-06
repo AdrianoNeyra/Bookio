@@ -5,45 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookio — Explorar</title>
     
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/explorar.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabecalho.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
-    <header class="site-header">
-        <div class="header-container">
-            <div class="logo">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bookio">
-                <a href="{{ url_for('index') }}">Bookio</a>
-            </div>
-            
-            <nav class="user-nav">
-                <a href="{{ url_for('publicar') }}" class="nav-item"><i class="fa-solid fa-plus"></i> Publicar</a>
-                <a href="{{ url_for('explorar') }}" class="nav-item active"><i class="fa-solid fa-compass"></i> Explorar</a>
-                <a href="{{ url_for('biblioteca') }}" class="nav-item"><i class="fas fa-book-reader"></i> Biblioteca</a>
-            </nav>
-
-            {% if session.get('user_id') %}
-                <a class="user-btn nav-item" href="{{ url_for('perfil') }}">
-                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="Perfil">
-                    <span>{{ session['username'] }}</span>
-                </a>
-            {% else %}
-                <a href="{{ url_for('login') }}" class="nav-item">Iniciar Sessão</a>
-            {% endif %}
-        </div>
-    </header>
+    {% include 'header.html' %}
 
     <section class="page-title-bar">
         <h1>{% if search %}Resultados para "{{ search }}"{% else %}Explorar Catálogo{% endif %}</h1>
         <p>Descobre o teu próximo livro entre <strong>{{ total_libros }}</strong> títulos disponíveis.</p>
     </section>
 
+    <div class="filters-overlay" id="filtersOverlay"></div>
+
+    <button type="button" class="floating-filter-btn" id="floatingFilterBtn">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+
     <div class="main-container">
         
-        <aside class="sidebar-filters">
+        <aside class="sidebar-filters" id="sidebarFilters">
+            <button type="button" class="close-filters-btn" id="closeFiltersBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
             <div class="filter-header">
                 <h3>Filtros</h3>
                 <a href="{{ url_for('explorar') }}" class="clear-filters">Limpar</a>
@@ -58,15 +46,19 @@
                     </div>
                 </div>
                 <div class="filter-group">
-                    <h4>Género</h4>
-                    <select name="genre" onchange="this.form.submit()">
-                        <option value="">— Todos —</option>
+                    <h4>Géneros</h4>
+                    <div class="genres-checkbox-list">
                         {% for g in generos_db %}
-                            <option value="{{ g['id'] }}" {% if selected_genre|string == g['id']|string %}selected{% endif %}>
-                                {{ g['name'] }}
-                            </option>
+                            <div class="checkbox-item">
+                                <input type="checkbox" 
+                                    name="genre" 
+                                    value="{{ g['id'] }}" 
+                                    id="genre-{{ g['id'] }}"
+                                    {% if g['id']|string in selected_genres %}checked{% endif %}>
+                                <label for="genre-{{ g['id'] }}">{{ g['name'] }}</label>
+                            </div>
                         {% endfor %}
-                    </select>
+                    </div>
                 </div>
             </form>
         </aside>
@@ -87,7 +79,7 @@
                 </div>
             </header>
 
-            <div class="ebook-grid">
+            <div class="ebook-grid" id="ebookGrid">
                 {% for libro in libros %}
                 <article class="ebook-card">
                     <a href="{{ url_for('detalle_libro', libro_id=libro['id']) }}" class="card-image">
@@ -96,7 +88,8 @@
                     <div class="card-content">
                         <span class="genre-tag">{{ libro['genre'] }}</span>
                         <h3 class="title"><a href="{{ url_for('detalle_libro', libro_id=libro['id']) }}">{{ libro['title'] }}</a></h3>
-                        <p class="author"><i class="fas fa-user-circle"></i> {{ libro['username'] }}</p>
+                        <p class="author">De: {{ libro['username'] }}</p>
+                        <p class="author">Publicado: {{ libro['created_at'].strftime('%d/%m/%Y') if libro['created_at'] else 'N/A' }}</p>
                         <div class="card-footer">
                             <a class="btn-read" href="{{ url_for('detalle_libro', libro_id=libro['id']) }}">
                                 <i class="fas fa-book-open"></i> Ler agora
@@ -114,8 +107,6 @@
             </div>
         </main>
     </div>
-
-    <script src="{{ url_for('static', filename='js/cabecalho.js') }}"></script>
     <script src="{{ url_for('static', filename='js/explorar.js') }}"></script>
 </body>
 </html>

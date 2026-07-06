@@ -1,0 +1,99 @@
+<header class="site-header">
+    <div class="header-container">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Bookio">
+            <a href="{{ url_for('index') }}">Bookio</a>
+        </div>
+        
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <nav class="user-nav" id="userNav">
+            <button type="button" class="close-menu-btn" id="closeMenuBtn">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <a href="{{ url_for('publicar') }}" class="nav-item"><i class="fa-solid fa-plus"></i> Publicar</a>
+            <a href="{{ url_for('explorar') }}" class="nav-item active"><i class="fa-solid fa-compass"></i> Explorar</a>
+            <a href="{{ url_for('biblioteca') }}" class="nav-item"><i class="fas fa-book-reader"></i> Biblioteca</a>
+
+            {% if session.get('user_id') %}
+                <div class="mobile-profile-wrapper">
+                    <hr class="menu-divider">
+                    <a class="user-btn-mobile" href="{{ url_for('perfil') }}">
+                        {% if current_user_data and current_user_data.avatar %}
+                            <img src="{{ current_user_data.avatar }}" alt="{{ current_user_data.username }}" class="header-avatar-img">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='assets/User-nophoto.png') }}" alt="Invitado" class="header-avatar-img">
+                        {% endif %}
+                        <span>{{ session['username'] }}</span>
+                        <i class="fa-solid fa-up-right-from-square"></i>
+                    </a>
+                </div>
+            {% endif %}
+        </nav>
+
+        <div class="control-container">
+            {% if session.get('user_id') %}
+                <div class="notifications-container">
+                    <button type="button" class="notif-btn" id="notifBtn">
+                        <i class="fa-solid fa-bell"></i>
+                        {% if notif_sin_leer > 0 %}
+                            <span class="notif-badge">{{ notif_sin_leer }}</span>
+                        {% endif %}
+                    </button>
+
+                    <div class="notif-dropdown" id="notifDropdown">
+                        <div class="notif-header">
+                            <span>Notificações</span>
+                        </div>
+                        <div class="notif-body">
+                            {% if notificaciones %}
+                                {% for n in notificaciones %}
+                                    <a href="{{ url_for('detalle_libro', libro_id=n['book_id']) if n['book_id'] else '#' }}" 
+                                    class="notif-item {% if not n['is_read'] %}unread{% endif %}">
+                                        <div class="notif-avatar">
+                                            {% if n['type'] == 'comment' %}
+                                                <i class="fas fa-comment-dots" style="color: #72bcec;"></i>
+                                            {% elif n['type'] == 'approval' %}
+                                                <i class="fas fa-circle-check" style="color: #2ecc71;"></i>
+                                            {% else %}
+                                                <i class="fas fa-bell"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="notif-content">
+                                            <p>{{ n['message']|safe }}</p> 
+                                            <span class="notif-time">{{ n['fecha_formateada'] }}</span>
+                                        </div>
+                                    </a>
+                                {% endfor %}
+                            {% else %}
+                                <div class="notif-empty">
+                                    <i class="fa-regular fa-bell-slash"></i>
+                                    <p>Não tens nenhuma notification de momento.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="notif-footer">
+                        </div>
+                    </div>
+                </div>
+
+                <a class="user-btn nav-item-profile" href="{{ url_for('perfil') }}">
+                    {% if current_user_data and current_user_data.avatar %}
+                        <img src="{{ current_user_data.avatar }}" alt="{{ current_user_data.username }}" class="header-avatar-img">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='assets/User-nophoto.png') }}" alt="Invitado" class="header-avatar-img">
+                    {% endif %}
+                    <span>{{ session['username'] }}</span>
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="nav-item-login">Iniciar Sessão</a>
+            {% endif %}
+
+            <button type="button" class="hamburger-btn" id="hamburgerBtn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </div>
+</header>
+<script src="{{ url_for('static', filename='js/header.js') }}"></script>

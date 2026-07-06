@@ -5,21 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Capítulo {{ index_atual }} — {{ libro.title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ler_cap.css') }}">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/logo.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body class="reader-mode">
 
     <header class="reader-header">
-        <div class="reader-nav-left">
-            <a href="{{ url_for('detalle_libro', libro_id=libro.id) }}" class="btn-back-reader">
-                <span class="desktop-only"><i class="fas fa-chevron-left"></i> Sair da leitura</span>
+        <div class="back">
+            <a href="{{ url_for('detalle_libro', libro_id=libro.id) }}">
+                <i class="fa-solid fa-chevron-left"></i>
             </a>
         </div>
-        
+
         <div class="reader-center-info">
             <span class="reader-book-title">{{ libro.title }}</span>
-            <span class="reader-cap-title">{{ capitulo.title }}</span>
         </div>
 
         <div class="reader-actions">
@@ -49,7 +48,13 @@
                     </div>
                 </a>
                 {% else %}
-                <div class="nav-link disabled"></div>
+                <div class="nav-link disabled">
+                    <i class="fas fa-arrow-left"></i> 
+                    <div class="nav-text">
+                        <span>Anterior</span>
+                        <strong>Capítulo Anterior</strong>
+                    </div>
+                </div>
                 {% endif %}
 
                 {% if siguiente_id %}

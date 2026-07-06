@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const n = nodes.desc.value.length;
         if (nodes.charNum) {
             nodes.charNum.textContent = n;
-            nodes.charNum.closest('.char-count').style.color = n > 450 ? (n >= 500 ? '#ef4444' : '#f97316') : '';
+            nodes.charNum.closest('.char-count').style.color = n >= 700 ? '#ef4444' : '';
         }
     });
 

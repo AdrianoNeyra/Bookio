@@ -52,39 +52,63 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tabParam) openTab(tabParam);
 
     // ── ELIMINAR LIVRO ───────────────────────
+    const modalDelete = document.getElementById('delete-modal');
+    const btnConfirmDelete = document.getElementById('btn-modal-confirm');
+    const btnCancelDelete = document.getElementById('btn-modal-cancel');
+    const modalBookTitle = document.getElementById('modal-book-title');
+
+    // Variable global temporal para saber qué libro está en cola de borrado
+    let libroIdDestino = null;
+
+    // 2. Asignamos los eventos a los botones de eliminar
     document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault(); // <── ESTO evita la recarga
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
             
-            const id = btn.dataset.id;
+            // Guardamos los datos del libro seleccionado
+            libroIdDestino = btn.dataset.id;
             const title = btn.dataset.title;
 
-            if (!confirm(`Eliminar "${title}"?`)) return;
-
-            try {
-                const response = await fetch(`/eliminar/${id}`, { method: 'POST' });
-                const data = await response.json();
-
-                if (data.success) {
-                    // Borra el elemento del HTML sin recargar
-                    document.getElementById(`libro-${id}`).remove();
-                } else {
-                    alert('Error al eliminar');
-                }
-            } catch (error) {
-                alert('Error de conexión');
-            }
+            // Inyectamos el título y abrimos tu modal personalizado
+            modalBookTitle.textContent = `"${title}"`;
+            modalDelete.classList.add('is-active');
         });
     });
 
-    // ── FLASH CLOSE ──────────────────────────
-    document.querySelectorAll('.flash-close').forEach(b => b.addEventListener('click', () => b.closest('.flash').remove()));
-    setTimeout(() => {
-        document.querySelectorAll('.flash').forEach(el => {
-            el.style.transition = 'opacity .4s'; el.style.opacity = '0';
-            setTimeout(() => el.remove(), 400);
-        });
-    }, 4000);
+    // 3. Escuchamos el clic en el botón "Sim, Eliminar" dentro del modal
+    btnConfirmDelete.addEventListener('click', async () => {
+        if (!libroIdDestino) return;
+
+        try {
+            // Tu FETCH original
+            const response = await fetch(`/eliminar/${libroIdDestino}`, { method: 'POST' });
+            const data = await response.json();
+
+            if (data.success) {
+                // Borra el elemento del HTML sin recargar
+                document.getElementById(`libro-${libroIdDestino}`).remove();
+            } else {
+                alert('Error al eliminar');
+            }
+        } catch (error) {
+            alert('Error de conexión');
+        } finally {
+            // Cerramos el modal siempre al terminar la operación
+            cerrarModal();
+        }
+    });
+
+    // Funciones para cerrar el modal de forma limpia
+    function cerrarModal() {
+        modalDelete.classList.remove('is-active');
+        libroIdDestino = null; 
+    }
+
+    btnCancelDelete.addEventListener('click', cerrarModal);
+
+    modalDelete.addEventListener('click', (e) => {
+        if (e.target === modalDelete) cerrarModal();
+    });
 });
 
 function updateCount(tabId) {

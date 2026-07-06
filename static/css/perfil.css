@@ -31,30 +31,182 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     gap: 2.5rem;
 }
 
+.avatar-preview-label {
+    cursor: pointer;
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
 .avatar {
-    width: 100px; height: 100px;
+    position: relative; /* Obligatorio */
+    width: 100px; 
+    height: 100px;
     border-radius: 50%;
-    background: var(--primary-light);
+    background: var(--primary-light, #fdf1e7);
     border: 3px solid rgba(235,126,37,0.3);
     overflow: hidden;
     flex-shrink: 0;
+    z-index: 1;
+    transition: border-color 0.25s ease, transform 0.2s ease;
 }
 
-.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover;
+    display: block;
+    position: relative;
+    z-index: 2;
+}
+
+.avatar-edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.2rem;
+    opacity: 0;
+    z-index: 3;
+    transition: opacity 0.25s ease;
+}
+
+.avatar-preview-label:hover .avatar-edit-overlay {
+    opacity: 1;
+}
+
+.avatar-preview-label:hover .avatar {
+    transform: scale(1.02);
+    border-color: rgba(235,126,37,0.7);
+}
+
 
 .profile-info h1 {
     font-family: 'Playfair Display', serif;
     font-size: 2rem; font-weight: 900;
     color: var(--text); margin-bottom: .3rem;
 }
-
-.username-handle { color: var(--text-muted); font-size: .9rem; margin-bottom: 1rem; }
+.profile-username { display: flex; align-items: center; gap: 0.5rem; }
+.username-handle { color: var(--text-muted); font-size: .9rem; margin-bottom: 5px; }
 
 .profile-stats { display: flex; gap: 2rem; }
 .p-stat .n { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--primary); display: block; }
 .p-stat .l { font-size: .72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
 
 .profile-actions { margin-left: auto; }
+
+
+/* Botón del lápiz junto al h1 */
+.btn-trigger-edit {
+    background: none;
+    border: none;
+    color: var(--text-muted, #888888);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.3rem;
+    transition: color 0.2s, transform 0.2s;
+}
+.btn-trigger-edit:hover {
+    color: var(--primary, #eb7e25);
+    transform: scale(1.1);
+}
+
+/* Contenedor de fondo oscuro para el menú modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000; /* Asegura que esté por encima de todo */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* Clase activa para mostrar el menú */
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Caja blanca del menú */
+.modal-content {
+    background: var(--surface, #ffffff);
+    width: 100%;
+    max-width: 450px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+
+/* Cabecera del menú */
+.modal-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border-subtle, #eee);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-header h3 { margin: 0; font-size: 1.25rem; }
+.btn-close-modal {
+    background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888;
+}
+
+/* Cuerpo del menú */
+.modal-body { padding: 1.5rem; }
+
+/* Caja de advertencia estilo alerta */
+.alert-warning-box {
+    background-color: rgba(235, 126, 37, 0.1);
+    border-left: 4px solid var(--primary, #eb7e25);
+    padding: 0.8rem 1rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+.alert-warning-box i { color: var(--primary, #eb7e25); margin-top: 0.2rem; }
+.alert-warning-box p { margin: 0; font-size: 0.9rem; color: #555; line-height: 1.4; }
+
+/* Input de texto en el modal */
+.form-group-modal { display: flex; flex-direction: column; gap: 0.5rem; }
+.form-group-modal label { font-size: 0.9rem; font-weight: 600; }
+.form-group-modal input {
+    padding: 0.6rem; border: 1px solid var(--border-subtle, #ccc); border-radius: 4px; font-size: 1rem;
+}
+.form-group-modal input:focus { outline: none; border-color: var(--primary, #eb7e25); }
+
+/* Botones de acción inferiores */
+.modal-footer {
+    padding: 1rem 1.5rem;
+    background: #f9f9f9;
+    border-top: 1px solid var(--border-subtle, #eee);
+    display: flex; justify-content: flex-end; gap: 0.8rem;
+}
+.btn-modal-cancel {
+    background: #e0e0e0; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;
+}
+.btn-modal-save {
+    background: var(--primary, #eb7e25); color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;
+}
+
 
 .btn-lib, .btn-logout {
     display: inline-flex; align-items: center; gap: 8px;
@@ -94,10 +246,87 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .empty i { font-size: 3rem; color: rgba(235,126,37,.3); display: block; margin-bottom: 1rem; }
 .empty a { color: var(--primary); font-weight: 600; text-decoration: none; display: inline-block; margin-top: .5rem; }
 
-/* ── FLASH ──────────────────────────────── */
-.flash-container { position: fixed; top: 80px; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 360px; }
-.flash { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 10px; font-size: .88rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,.1); }
-.flash-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
-.flash-error   { background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; }
-.flash-close { margin-left: auto; background: none; border: none; color: inherit; cursor: pointer; opacity: .5; padding: 0; }
-.flash-close:hover { opacity: 1; }
+@media (max-width: 768px) {
+    
+    /* ── PROFILE HERO RE-ESTRUCTURADO ── */
+    .profile-hero {
+        padding: 2.5rem 1rem 2rem;
+    }
+
+    .profile-username { justify-content: center; }
+
+    .profile-inner {
+        flex-direction: column; /* Apilamos los elementos verticalmente */
+        text-align: center;      /* Centramos los textos */
+        gap: 1.5rem;
+    }
+
+    .avatar {
+        width: 110px;  /* Hacemos el avatar un pelín más grande para que destaque en el centro */
+        height: 110px;
+    }
+
+    /* Estadísticas del perfil ordenadas en pantallas táctiles */
+    .profile-stats {
+        justify-content: center; /* Centra las estadísticas */
+        gap: 1.8rem;
+        margin-top: 0.5rem;
+    }
+
+    .p-stat .n {
+        font-size: 1.4rem; /* Reducimos sutilmente el número */
+    }
+
+    /* Contenedor de botones de acción (Mis Libros / Terminar Sesión) */
+    .profile-actions {
+        margin-left: 0; /* Quitamos el empuje hacia la derecha de PC */
+        width: 100%;
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+    }
+
+    .btn-lib, .btn-logout {
+        flex: 1; /* Hace que ambos botones midan exactamente lo mismo hacia los lados */
+        justify-content: center;
+        padding: 0.65rem 1rem;
+        font-size: 0.82rem;
+        border-radius: 8px;
+    }
+
+    /* ── CONTENIDO DE PUBLICACIONES ── */
+    .profile-content {
+        margin: 1.5rem auto;
+        padding: 0 1rem 4rem; /* Reducimos márgenes para dar espacio a las tarjetas */
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        text-align: center; /* Título de sección centrado */
+    }
+
+    /* ── CUADRÍCULA DE LIBROS (2 Columnas perfectas) ── */
+    .book-grid {
+        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); /* 2 libros por fila de forma fluida */
+        gap: 1rem;
+    }
+
+    /* Desactivamos el efecto hover en pantallas móviles para evitar lag al hacer scroll táctil */
+    .ebook-card:hover {
+        transform: none;
+    }
+
+    .card-content {
+        padding: 10px; /* Reducimos espaciado de tarjeta */
+    }
+
+    .card-title {
+        font-size: 0.82rem; /* El título se adapta al espacio de las dos columnas */
+        line-height: 1.2;
+    }
+
+    .genre {
+        font-size: 0.6rem;
+    }
+}

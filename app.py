@@ -1,29 +1,106 @@
-from flask import Flask, jsonify, render_template, session, request, redirect, url_for, flash, abort
-import mysql.connector, base64, re
+from flask import Flask, jsonify, render_template, session, request, redirect, url_for, abort
+import mysql.connector, base64
 from werkzeug.security import generate_password_hash, check_password_hash
 import smtplib
 import random
 import traceback
+import os
 from email.mime.text import MIMEText
 from datetime import datetime, timedelta
-  
+from transformers import pipeline
+from better_profanity import profanity
+
 app = Flask(__name__)
 app.secret_key = 'tu_llave_secreta_aqui' # Necesario para sesiones
 
 # Configuración de la base de datos
 db_config = {
-    'host': 'mysql-bookio-adrianoneyra2007-5b82.l.aivencloud.com',
-    'user': 'avnadmin',
-    'password': 'AVNS_SSvIvhk1YvEN9kAJd-v',
-    'database': 'bookio_db',
-    'port': 16246
+    'host': 'localhost',
+    'user': 'root',
+    'password': '',
+    'database': 'bookio_db'
 }
 
 EMAIL_EMISOR = "adrianoneyra2007@gmail.com"
 EMAIL_PASSWORD = "gqyp mkxl lzcu wwqx"
 
+palabras_prohibidas_master = []
+ruta_txt = "static/assets/censored.txt"
+
+try:
+    # Verificamos si el archivo existe antes de intentar abrirlo
+    if os.path.exists(ruta_txt):
+        with open(ruta_txt, "r", encoding="utf-8") as archivo:
+            # Leemos cada línea, quitamos espacios/saltos de línea y filtramos líneas vacías
+            palabras_prohibidas_master = [linea.strip().lower() for linea in archivo if linea.strip()]
+        print(f"✅ Se cargaron exitosamente {len(palabras_prohibidas_master)} palabras prohibidas desde el archivo TXT.")
+    else:
+        print(f"⚠️ Alerta: No se encontró el archivo '{ruta_txt}'. El filtro rápido estará vacío.")
+except Exception as e:
+    print(f"⚠️ Error al leer el archivo de palabras prohibidas: {e}")
+
+# Alimentamos la librería de profanidad con la lista extraída del archivo
+profanity.load_censor_words(palabras_prohibidas_master)
+
+try:
+    moderador_local = pipeline(
+        "zero-shot-classification", 
+        model="facebook/bart-large-mnli"
+    )
+except Exception as e:
+    print(f"⚠️ No se pudo cargar el modelo multilingüe: {e}")
+    moderador_local = None
+
+def verificar_comentario_apropiado(texto):
+    # 🚨 CORRECCIÓN 1: Forzamos minúsculas y limpiamos espacios antes de verificar
+    texto_limpio = str(texto).lower().strip()
+    
+    # 🛡️ CAPA 1: FILTRO RÁPIDO
+    if profanity.contains_profanity(texto_limpio):
+        print(f"🚫 Comentario ocultado por CAPA RÁPIDA (Palabra explícita detectada).")
+        return False 
+
+    # 🧠 CAPA 2: INTELIGENCIA ARTIFICIAL
+    if not moderador_local:
+        return True 
+        
+    try:
+        # Añadimos "sexual" y "vulgar" para que la IA sepa identificar ese tipo de comentarios
+        etiquetas_candidatas = ["apropiado", "insulto", "odio", "spam", "vulgar", "sexual"]
+        resultado = moderador_local(texto_limpio, candidate_labels=etiquetas_candidatas)
+        
+        etiqueta_ganadora = resultado['labels'][0]
+        probabilidad = resultado['scores'][0]
+        
+        # 🚨 CORRECCIÓN 2: Bajamos el umbral a 0.4 para volver la IA más estricta
+        if etiqueta_ganadora != "apropiado" and probabilidad > 0.52:
+            print(f"🚫 Comentario ocultado por IA. Detectado como: {etiqueta_ganadora} ({round(probabilidad * 100)}%)")
+            return False 
+            
+        return True 
+        
+    except Exception as e:
+        print(f"⚠️ Error al procesar el comentario con la IA: {e}")
+        return True
+
 def get_db_connection():
     return mysql.connector.connect(**db_config)
+
+@app.context_processor
+def inject_user():
+    if 'user_id' in session:
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT username, avatar FROM users WHERE id = %s", (session['user_id'],))
+            usuario = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            if usuario:
+                return dict(current_user_data=usuario)
+        except Exception:
+            pass
+    return dict(current_user_data=None)
 
 def enviar_correo_codigo(email_destino, codigo):
     msg = MIMEText(f"O teu código de recuperação de palavra-passe é: {codigo}\nEste código expira em 15 minutos.")
@@ -112,6 +189,70 @@ def verify_code():
         # ERROR: Se queda en la pantalla del código para reintentar
         return render_template('login.html', active_form='rp2')
 
+##_______ NOTIFICAÇÕES ________##
+
+@app.context_processor
+def inject_notifications():
+    # Si el usuario no ha iniciado sesión, enviamos datos vacíos
+    if 'user_id' not in session:
+        return dict(notificaciones=[], notif_sin_leer=0)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        # Traemos las últimas 10 notificaciones y calculamos el tiempo relativo en portugués
+        cursor.execute("""
+            SELECT id, book_id, type, message, is_read,
+                   CASE 
+                       WHEN created_at >= NOW() - INTERVAL 1 HOUR THEN CONCAT('Há ', MINUTE(TIMEDIFF(NOW(), created_at)), ' min')
+                       WHEN created_at >= NOW() - INTERVAL 1 DAY THEN CONCAT('Há ', HOUR(TIMEDIFF(NOW(), created_at)), ' horas')
+                       ELSE DATE_FORMAT(created_at, '%d/%m/%Y')
+                   END AS fecha_formateada
+            FROM notifications 
+            WHERE user_id = %s 
+            ORDER BY created_at DESC 
+            LIMIT 10
+        """, (session['user_id'],))
+        mis_notificaciones = cursor.fetchall()
+        
+        # Contamos cuántas alertas sin leer quedan para el círculo rojo
+        notif_sin_leer = sum(1 for n in mis_notificaciones if not n['is_read'])
+        
+        return dict(notificaciones=mis_notificaciones, notif_sin_leer=notif_sin_leer)
+        
+    except Exception as e:
+        print(f"Error en context_processor de notificaciones: {e}")
+        return dict(notificaciones=[], notif_sin_leer=0)
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route('/notificaciones/leer-todas', methods=['POST'])
+def leer_todas_notificaciones():
+    if 'user_id' not in session:
+        return {"status": "error", "message": "No autorizado"}, 401
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # Cambiamos el estado de todas las alertas pendientes de este usuario
+        cursor.execute("""
+            UPDATE notifications 
+            SET is_read = TRUE 
+            WHERE user_id = %s AND is_read = FALSE
+        """, (session['user_id'],))
+        conn.commit()
+        return {"status": "success"}, 200
+    except Exception as e:
+        print(f"Error al limpiar notificaciones: {e}")
+        return {"status": "error"}, 500
+    finally:
+        cursor.close()
+        conn.close()
+        
+##_______ INDEX ________##
+
 @app.route('/')
 def index():
     conn = get_db_connection()
@@ -135,7 +276,10 @@ def index():
         cursor.execute("SELECT COUNT(*) as total FROM books WHERE status = 'approved'")
         total_libros = cursor.fetchone()['total']
 
-        return render_template('index.html', libros=libros, total_libros=total_libros)
+        cursor.execute("SELECT id, name FROM genres ORDER BY name ASC")
+        lista_generos = cursor.fetchall()
+        
+        return render_template('index.html', libros=libros, total_libros=total_libros, lista_generos=lista_generos)
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
@@ -144,25 +288,30 @@ def index():
         cursor.close()
         conn.close()
 
-# --- RUTAS DE NAVEGACIÓN (Esqueletos) ---
+##_______ EXPLORAR ________##
 
 @app.route('/explorar')
 def explorar():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
     # 1. Obtener parámetros de la URL (filtros)
     search_query = request.args.get('q', '')
-    genre_filter = request.args.get('genre', '')
+    # 🚨 CAMBIO: Capturamos una lista de géneros seleccionados
+    genre_filter = request.args.getlist('genre') 
     sort_option = request.args.get('sort', 'new')
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # 2. Construir la consulta base unificando con géneros y autores
+        # 2. Construir la consulta base unificando con géneros y autores (AÑADIDO b.created_at)
         sql = """
             SELECT 
                 b.id, 
                 b.title, 
-                b.image, 
+                b.image,
+                b.created_at, 
                 u.username,
                 COALESCE(GROUP_CONCAT(g.name SEPARATOR ', '), 'Sem género') AS genre
             FROM books b 
@@ -178,13 +327,21 @@ def explorar():
             sql += " AND (b.title LIKE %s OR u.username LIKE %s)"
             params.extend([f"%{search_query}%", f"%{search_query}%"])
 
-        # 4. Aplicar filtro de género (usamos la tabla intermedia bg)
+        # 4. Aplicar filtro de géneros múltiples (Pre-filtrado para el HAVING)
         if genre_filter:
-            sql += " AND bg.genre_id = %s"
-            params.append(genre_filter)
+            placeholders = ', '.join(['%s'] * len(genre_filter))
+            sql += f" AND bg.genre_id IN ({placeholders})"
+            params.extend(genre_filter)
 
-        # Es obligatorio agrupar por el ID del libro antes de ordenar debido al GROUP_CONCAT
+        # Es obligatorio agrupar por el ID del libro debido al GROUP_CONCAT
         sql += " GROUP BY b.id"
+
+        # 🚨 NUEVO: Forzar a que el libro tenga TODOS los géneros marcados
+        if genre_filter:
+            # COUNT(DISTINCT bg.genre_id) cuenta cuántos de los géneros buscados tiene el libro.
+            # Debe ser exactamente igual a la cantidad de géneros que seleccionó el usuario.
+            sql += " HAVING COUNT(DISTINCT bg.genre_id) = %s"
+            params.append(len(genre_filter))
 
         # 5. Aplicar ordenamiento
         if sort_option == 'new':
@@ -195,12 +352,11 @@ def explorar():
         cursor.execute(sql, params)
         libros = cursor.fetchall()
 
-        # 6. Obtener el total de libros general para el encabezado
+        # 6. Obtener el total de libros general
         cursor.execute("SELECT COUNT(*) as total FROM books WHERE status = 'approved'")
         total_libros = cursor.fetchone()['total']
 
-        # === NUEVO: OBTENER LISTA DE GÉNEROS DESDE LA BD ===
-        # Hacemos esto justo antes de cerrar el cursor para tener la lista en el HTML
+        # OBTENER LISTA DE GÉNEROS DESDE LA BD
         cursor.execute("SELECT id, name FROM genres ORDER BY name ASC")
         lista_generos = cursor.fetchall()
 
@@ -209,9 +365,9 @@ def explorar():
             libros=libros, 
             total_libros=total_libros,
             search=search_query,
-            selected_genre=genre_filter,
+            selected_genres=genre_filter,  # ← Enviamos la lista completa al HTML
             sort_option=sort_option,
-            generos_db=lista_generos  # ← ¡Pasamos la variable para tu bucle en el HTML!
+            generos_db=lista_generos
         )
 
     except mysql.connector.Error as err:
@@ -223,6 +379,9 @@ def explorar():
 
 @app.route('/libro/<int:libro_id>')
 def detalle_libro(libro_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -284,13 +443,14 @@ def detalle_libro(libro_id):
 
     # === MODIFICADO: CARGAR SOLO LOS 5 PRIMEROS AL PRINCIPIO ===
     cursor.execute("""
-        SELECT c.id, c.content, DATE_FORMAT(c.created_at, '%d/%m/%Y %H:%i') AS created_at, u.username
+        SELECT c.id, c.content, c.created_at, u.username
         FROM comments c
         JOIN users u ON c.user_id = u.id
-        WHERE c.book_id = %s
+        WHERE c.book_id = %s AND c.status = 'visible'
         ORDER BY c.created_at DESC
         LIMIT 5
     """, (libro_id,))
+    
     comentarios = cursor.fetchall()
 
     cursor.execute("SELECT COUNT(*) AS total FROM comments WHERE book_id = %s", (libro_id,))
@@ -317,11 +477,14 @@ def obtener_comentarios_api(libro_id):
     cursor = conn.cursor(dictionary=True)
     
     try:
+        # 🚨 Agregamos el filtro status = 'visible' para que la API ignore los ocultos
         cursor.execute("""
             SELECT c.id, c.content, c.created_at, u.username
             FROM comments c
             JOIN users u ON c.user_id = u.id
-            WHERE c.book_id = %s
+            WHERE c.book_id = %s 
+              AND (c.status = 'visible' OR c.status IS NULL) 
+              AND c.status != 'hidden'
             ORDER BY c.created_at DESC
             LIMIT %s OFFSET %s
         """, (libro_id, limite, offset))
@@ -330,7 +493,6 @@ def obtener_comentarios_api(libro_id):
         
         comentarios = []
         for r in resultados:
-            # Nos aseguramos de que la fecha se convierta a texto sin importar cómo venga de la BD
             if hasattr(r['created_at'], 'strftime'):
                 fecha_texto = r['created_at'].strftime('%d/%m/%Y %H:%M')
             else:
@@ -345,44 +507,81 @@ def obtener_comentarios_api(libro_id):
         return jsonify(comentarios)
 
     except Exception as e:
-        # Esto pintará el error exacto en tu terminal de Flask si algo falla en Python
         print(f"ERR EN API COMENTARIOS: {e}")
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
         conn.close()
 
+
 @app.route('/libro/<int:libro_id>/comentar', methods=['POST'])
 def agregar_comentario(libro_id):
-    # Validar que el usuario esté logueado
     if 'user_id' not in session:
-        return redirect(url_for('login')) # O mandar un mensaje de error
+        return redirect(url_for('login'))
 
+    # Usamos 'content' exactamente como lo tenías originalmente
     content = request.form.get('content', '').strip()
     
     if content:
+        # 1. Moderación con OpenAI antes de abrir conexiones
+        es_apropiado = verificar_comentario_apropiado(content)
+        # Mapeamos la decisión de la IA a los estados de tu BD
+        status_final = 'visible' if es_apropiado else 'hidden'
+
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
+        
+        # === PROCESO 1: AGREGAR EL COMENTARIO ===
+        comentario_guardado = False
         try:
-            # Insertar comentario en la BD (created_at suele ser TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
+            # Insertamos incluyendo la columna status que maneja tu BD
             cursor.execute("""
-                INSERT INTO comments (book_id, user_id, content) 
-                VALUES (%s, %s, %s)
-            """, (libro_id, session['user_id'], content))
+                INSERT INTO comments (book_id, user_id, content, status) 
+                VALUES (%s, %s, %s, %s)
+            """, (libro_id, session['user_id'], content, status_final))
             conn.commit()
+            
+            # Solo consideramos éxito para notificar si es 'visible'
+            if es_apropiado:
+                comentario_guardado = True
+            else:
+                print(f"🚫 Comentario guardado automáticamente como 'hidden'.")
+                
         except mysql.connector.Error as err:
             print(f"Erro ao guardar comentário: {err}")
-        finally:
-            cursor.close()
-            conn.close()
 
-    # Redirige de vuelta a la misma página del libro para ver el comentario reflejado
+        # === PROCESO 2: NOTIFICAR AL AUTOR (Solo para comentarios limpios) ===
+        if comentario_guardado:
+            try:
+                cursor.execute("SELECT author_id FROM books WHERE id = %s", (libro_id,))
+                libro_data = cursor.fetchone()
+                
+                if libro_data:
+                    autor_del_libro = libro_data['author_id']
+                    
+                    if session['user_id'] != autor_del_libro:
+                        cursor.execute("""
+                            INSERT INTO notifications (user_id, sender_id, book_id, type, message)
+                            VALUES (%s, %s, %s, %s, %s)
+                        """, (
+                            autor_del_libro, 
+                            session['user_id'], 
+                            libro_id, 
+                            'comment',
+                            f"<strong>{session['username']}</strong> comentou no teu livro."
+                        ))
+                        conn.commit()
+            except Exception as notif_err:
+                print(f"⚠️ Alerta: El comentario se creó, pero falló la notificación: {notif_err}")
+
+        cursor.close()
+        conn.close()
+
     return redirect(url_for('detalle_libro', libro_id=libro_id))
 
 @app.route('/libro/<int:libro_id>/nuevo-capitulo', methods=['GET', 'POST'])
 def novo_capitulo(libro_id):
     if 'user_id' not in session:
-        flash('Tens de iniciar sessão primeiro.', 'error')
         return redirect(url_for('login'))
 
     conn = get_db_connection()
@@ -393,7 +592,6 @@ def novo_capitulo(libro_id):
     libro = cursor.fetchone()
     
     if not libro:
-        flash('Livro não encontrado ou não tens permissão.', 'error')
         return redirect(url_for('explorar'))
 
     if request.method == 'POST':
@@ -410,12 +608,10 @@ def novo_capitulo(libro_id):
             cursor.execute(query, (libro_id, title, content, orden))
             conn.commit()
             
-            flash('Capítulo guardado com sucesso!', 'success')
             return redirect(url_for('detalle_libro', libro_id=libro_id))
         except Exception as e:
             conn.rollback()
             print(f"Erro ao criar capítulo: {e}")
-            flash('Erro ao guardar o capítulo.', 'error')
 
     # Obtener todos los capítulos del libro para mostrarlos en el sidebar lateral
     cursor.execute("SELECT id, title FROM chapters WHERE book_id = %s ORDER BY order_index ASC", (libro_id,))
@@ -446,7 +642,6 @@ def editar_capitulo(capitulo_id):
     resultado = cursor.fetchone()
 
     if not resultado or resultado['author_id'] != session['user_id']:
-        flash('Não tens permissão para editar este capítulo.', 'error')
         return redirect(url_for('explorar'))
 
     # Reestructuramos la data para que encaje con lo que pide tu HTML
@@ -463,7 +658,6 @@ def editar_capitulo(capitulo_id):
                 (nuevo_titulo, nuevo_contenido, capitulo_id)
             )
             conn.commit()
-            flash('Capítulo atualizado com sucesso!', 'success')
             return redirect(url_for('detalle_libro', libro_id=libro['id']))
         except Exception as e:
             conn.rollback()
@@ -486,7 +680,6 @@ def ler_capitulo(capitulo_id):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
-    # 1. Obtener el capítulo actual y los datos básicos de su libro
     query_cap = """
         SELECT c.*, b.title as book_title, b.id as book_id
         FROM chapters c
@@ -497,15 +690,12 @@ def ler_capitulo(capitulo_id):
     capitulo = cursor.fetchone()
 
     if not capitulo:
-        flash('Capítulo não encontrado.', 'error')
         cursor.close()
         conn.close()
         return redirect(url_for('explorar'))
 
-    # Reestructuramos para cumplir con las variables de tu HTML (libro.id, libro.title)
     libro = {'id': capitulo['book_id'], 'title': capitulo['book_title']}
 
-    # 2. Encontrar el capítulo ANTERIOR (el valor más alto de order_index que sea MENOR al actual)
     query_anterior = """
         SELECT id FROM chapters 
         WHERE book_id = %s AND order_index < %s 
@@ -515,7 +705,6 @@ def ler_capitulo(capitulo_id):
     anterior = cursor.fetchone()
     anterior_id = anterior['id'] if anterior else None
 
-    # 3. Encontrar el capítulo SIGUIENTE (el valor más bajo de order_index que sea MAYOR al actual)
     query_siguiente = """
         SELECT id FROM chapters 
         WHERE book_id = %s AND order_index > %s 
@@ -525,7 +714,6 @@ def ler_capitulo(capitulo_id):
     siguiente = cursor.fetchone()
     siguiente_id = siguiente['id'] if siguiente else None
 
-    # 4. Calcular el número visual del capítulo (contando cuántos hay antes + 1)
     cursor.execute("SELECT COUNT(*) as total FROM chapters WHERE book_id = %s AND order_index <= %s", 
                    (libro['id'], capitulo['order_index']))
     index_atual = cursor.fetchone()['total']
@@ -533,7 +721,6 @@ def ler_capitulo(capitulo_id):
     cursor.close()
     conn.close()
 
-    # IMPORTANTE: El nombre del archivo debe ser exacto al que tienes creado
     return render_template('ler_cap.html', 
                            libro=libro, 
                            capitulo=capitulo, 
@@ -551,15 +738,13 @@ def perfil(user_id=None):
         is_own = True
     else:
         target_user_id = int(user_id)
-        # Aseguramos que ambos sean enteros para poder compararlos correctamente
         is_own = (session.get('user_id') is not None and int(session['user_id']) == target_user_id)
 
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # 1. Obtener datos del usuario del perfil
-        cursor.execute("SELECT id, username, email FROM users WHERE id = %s", (target_user_id,))
+        cursor.execute("SELECT id, username, email, avatar, created_at FROM users WHERE id = %s", (target_user_id,))
         user_profile = cursor.fetchone()
 
         if not user_profile:
@@ -567,8 +752,25 @@ def perfil(user_id=None):
             conn.close()
             abort(404)
 
-        user_profile['username_lower'] = str(user_profile['username']).lower()
+        cursor.execute("SELECT COUNT(*) as total FROM books WHERE author_id = %s", (target_user_id,))
+        total_livros = cursor.fetchone()['total']
 
+        cursor.execute("""
+            SELECT COUNT(c.id) as total 
+            FROM chapters c 
+            JOIN books b ON c.book_id = b.id 
+            WHERE b.author_id = %s
+        """, (target_user_id,))
+        total_capitulos = cursor.fetchone()['total']
+
+        cursor.execute("""
+            SELECT COUNT(c.id) as total 
+            FROM comments c
+            JOIN books b ON c.book_id = b.id
+            WHERE b.author_id = %s
+        """, (target_user_id,))
+        total_comentarios = cursor.fetchone()['total']
+        
         # 2. Obtener libros publicados combinando con la tabla de géneros
         if is_own:
             query_libros = """
@@ -609,16 +811,17 @@ def perfil(user_id=None):
             'perfil.html', 
             user_profile=user_profile, 
             livros=mis_libros,  
-            is_own=is_own
+            is_own=is_own,
+            total_livros=total_livros,
+            total_capitulos=total_capitulos,
+            total_comentarios=total_comentarios
         )
 
     except Exception as err:
-        # CAMBIO CLAVE: Cambiado a Exception general para atrapar CUALQUIER fallo (Base de datos, Jinja, Python)
         print("\n❌ --- ERROR CRÍTICO EN LA RUTA DEL PERFIL ---")
         print(f"Detalle del error: {err}")
         print("--------------------------------------------\n")
         
-        # Intentar cerrar conexiones de seguridad si falló a mitad de camino
         try:
             cursor.close()
             conn.close()
@@ -627,8 +830,86 @@ def perfil(user_id=None):
             
         return "Erro no servidor", 500
 
+@app.route('/atualizar-perfil', methods=['POST'])
+def atualizar_perfil():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+        
+    usuario_id = session['user_id']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    try:
+        cursor.execute("SELECT username, avatar FROM users WHERE id = %s", (usuario_id,))
+        usuario = cursor.fetchone()
+        
+        if not usuario:
+            cursor.close()
+            conn.close()
+            return redirect(url_for('perfil'))
+
+        # 1. PROCESAR EL CAMBIO DE NOMBRE DE USUARIO (Sin límite de días)
+        novo_username = request.form.get('username')
+
+        if novo_username:
+            novo_username = novo_username.strip()
+
+            if novo_username != usuario['username']:
+                # Solo verificamos que el nombre nuevo no esté en uso por otra persona
+                cursor.execute("SELECT id FROM users WHERE username = %s AND id != %s", (novo_username, usuario_id))
+                existe_nome = cursor.fetchone()
+                
+                if existe_nome:
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('perfil'))
+                    
+                # Guardamos el nuevo nombre y actualizamos la marca de tiempo a NOW()
+                sql_nome = "UPDATE users SET username = %s, last_change_name = NOW() WHERE id = %s"
+                cursor.execute(sql_nome, (novo_username, usuario_id))
+                
+                session['username'] = novo_username
+
+        # 2. PROCESAR EL CAMBIO DE AVATAR
+        if 'avatar' in request.files:
+            ficheiro = request.files['avatar']
+            
+            if ficheiro and ficheiro.filename != '':
+                extensao = ficheiro.filename.rsplit('.', 1)[1].lower()
+                
+                if extensao in {'png', 'jpg', 'jpeg', 'gif', 'webp'}:
+                    imagem_bytes = ficheiro.read()
+                    imagem_base64 = base64.b64encode(imagem_bytes).decode('utf-8')
+                    avatar_base64_completo = f"data:image/{extensao};base64,{imagem_base64}"
+                    
+                    sql_avatar = "UPDATE users SET avatar = %s WHERE id = %s"
+                    cursor.execute(sql_avatar, (avatar_base64_completo, usuario_id))
+                else:
+                    cursor.close()
+                    conn.close()
+                    return redirect(url_for('perfil'))
+
+        # 3. CONFIRMAR TRANSACCIÓN EN MYSQL
+        conn.commit()
+
+    except Exception as err:
+        print(f"❌ Error crítico en actualizar_perfil: {err}")
+        try:
+            conn.rollback()
+        except:
+            pass
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('perfil'))
+
 @app.route('/publicar')
 def publicar():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT id, name FROM genres")
@@ -782,7 +1063,7 @@ def login():
             session['username'] = user['username']
             session['user_rank'] = user['user_rank']
             
-            return redirect(url_for('index'))
+            return redirect(url_for('explorar'))
     
     return render_template('login.html')
 
@@ -882,6 +1163,10 @@ def biblioteca():
     finally:
         cursor.close()
         conn.close()
+
+@app.route('/termos-e-condicoes')
+def termos():
+    return render_template('termos.html')
 
 @app.route('/favorito/<int:libro_id>', methods=['POST'])
 def toggle_favorito(libro_id):
@@ -1266,10 +1551,39 @@ def admin_approve_book(id):
         # IMPORTANTE: Usamos 'approved' porque es el valor de tu ENUM
         cursor.execute("UPDATE books SET status = 'approved' WHERE id = %s", (id,))
         conn.commit()
-            
+        
+        libro_aprobado_con_exito = True
+        
+        if libro_aprobado_con_exito:
+            try:
+                # 1. Buscamos el título y el ID del autor
+                cursor.execute("SELECT author_id, title FROM books WHERE id = %s", (id,))
+                libro_data = cursor.fetchone()
+                
+                if libro_data:
+                    autor_id = libro_data[0]   
+                    titulo_libro = libro_data[1] 
+                    
+                    # 2. Insertamos la notificación
+                    cursor.execute("""
+                        INSERT INTO notifications (user_id, sender_id, book_id, type, message)
+                        VALUES (%s, %s, %s, %s, %s)
+                    """, (
+                        autor_id,
+                        session.get('user_id'), 
+                        id,
+                        'approval',             
+                        f"Parabéns! O teu livro <strong>\"{titulo_libro}\"</strong> foi aprovado e já está disponível."
+                    ))
+                    conn.commit()
+            except Exception as notif_err:
+                # Si las notificaciones fallan, se registra el error pero no rompe el flujo
+                print(f"⚠️ Alerta: El libro se aprobó, pero falló el envío de la notificación: {notif_err}")
+    
     except Exception as e:
         conn.rollback()
         print(f"Erro ao aprovar: {e}")
+
     finally:
         cursor.close()
         conn.close()

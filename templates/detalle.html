@@ -1,42 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ libro.title }} — Bookio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabecalho.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/detalle.css') }}">
 </head>
 <body>
 
-    <header class="site-header">
-        <div class="header-container">
-            <div class="logo">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Bookio">
-                <a href="{{ url_for('index') }}">Bookio</a>
-            </div>
-            <div class="search-bar">
-                <form action="{{ url_for('buscar') }}" method="get">
-                    <input type="search" name="q" placeholder="Buscar títulos...">
-                    <button type="submit"><i class="fas fa-search"></i></button>
-                </form>
-            </div>
-            <nav class="user-nav">
-                <a href="{{ url_for('publicar') }}" class="nav-item"><i class="fa-solid fa-plus"></i> Publicar</a>
-                <a href="{{ url_for('explorar') }}" class="nav-item"><i class="fa-solid fa-compass"></i> Explorar</a>
-                <a href="{{ url_for('biblioteca') }}" class="nav-item"><i class="fas fa-book-reader"></i> Biblioteca</a>
-                {% if session.get('user_id') %}
-                <a class="user-btn nav-item" href="{{ url_for('perfil') }}">
-                    <img src="{{ url_for('static', filename='images/user-nophoto.png') }}" alt="Perfil">
-                    <span>{{ session['username'] }}</span>
-                </a>                
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="nav-item">Iniciar Sessão</a>
-                {% endif %}
-            </nav>
-        </div>
-    </header>
+    {% include 'header.html' %}
 
     <div class="container">
         <header class="page-header">
@@ -134,6 +108,10 @@
                                     style="cursor: pointer;">
                                 </i>
                             </div>
+                        </div>
+                        {% else %}
+                        <div style="padding: 20px; color: gray; display: flex; justify-content: center;">
+                            <span>— Ainda não há capítulos para este livro —</span>
                         </div>
                         {% endfor %}
                     </div>

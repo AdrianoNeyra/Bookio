@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookio — Acesso</title>
     
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -14,7 +14,7 @@
     <main class="auth-container">
         <section class="auth-visual">
             <div class="visual-logo">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+                <img src="{{ url_for('static', filename='assets/logo.png') }}" alt="Logo">
                 <span>Bookio</span>
             </div>
             
@@ -58,15 +58,6 @@
                 <button type="submit" class="btn-auth">
                     <i class="fas fa-arrow-right-to-bracket"></i> Entrar
                 </button>
-
-                <div class="divider"><span>Ou aceder com</span></div>
-
-                <div class="social-auth">
-                    <button type="button" class="btn-google">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="18">
-                        Google
-                    </button>
-                </div>
             </form>
 
             <form id="registerForm" class="auth-form {% if active_form == 'register' %}active{% endif %}" method="POST" action="{{ url_for('register') }}">
@@ -99,7 +90,7 @@
                 </div>
 
                 <div class="terms">
-                    <label><input type="checkbox" required> Aceito os <a href="#">Termos e Condições</a></label>
+                    <label><input type="checkbox" required> Aceito os <a href="{{ url_for('termos') }}">Termos e Condições</a></label>
                 </div>
 
                 <button type="submit" class="btn-auth">Criar Conta</button>

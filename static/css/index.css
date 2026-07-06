@@ -14,6 +14,10 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
 
+.notifications-container {
+    display: none !important;
+}
+
 /* ── HERO ───────────────────────────────── */
 .hero {
     position: relative;
@@ -220,4 +224,148 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     .hero-search, .hero-subtitle { margin-left: auto; margin-right: auto; }
     .hero-visual-side { display: none; }
     .hero-stats { justify-content: center; }
+}
+
+@media (max-width: 768px) {
+
+    /* ── 1. AJUSTES DEL HERO EN MÓVIL ── */
+    .hero {
+        padding: 3rem 1rem;
+        min-height: auto;
+        text-align: center;
+    }
+
+    .hero-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .hero-badge {
+        font-size: 0.7rem;
+        margin-bottom: 1rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .hero-search {
+        margin: 0 auto 2rem auto;
+        width: 100%;
+    }
+
+    /* Estadísticas agrupadas en móvil */
+    .hero-stats {
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    .stat .num {
+        font-size: 1.6rem;
+    }
+
+    .stat .lab {
+        font-size: 0.7rem;
+    }
+
+    /* Ocultamos los libros flotantes decorativos para optimizar espacio */
+    .hero-visual-side {
+        display: none !important;
+    }
+
+    /* ── 2. SECCIÓN CATÁLOGO (Carrusel con Enlace Nativo) ── */
+    .content-section {
+        margin: 2rem auto;
+        padding: 0 0 0 1rem; 
+        overflow: hidden;
+    }
+
+    .section-top {
+        padding-right: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .section-top h2 {
+        font-size: 1.6rem;
+    }
+
+    .view-all {
+        font-size: 0.85rem;
+    }
+
+    /* CONVERSIÓN A CARRUSEL HORIZONTAL TÁCTIL */
+    .books-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: auto !important; 
+        scroll-snap-type: x mandatory !important; 
+        gap: 1.2rem !important;
+        padding: 10px 0 !important;
+        width: 100% !important;
+        -webkit-overflow-scrolling: touch; 
+    }
+
+    .books-grid::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* El enlace contenedor es el que ahora maneja el tamaño del carrusel */
+    .book-card-link {
+        flex: 0 0 85% !important; 
+        scroll-snap-align: start !important;
+        box-sizing: border-box;
+    }
+
+    /* La tarjeta pasa a ocupar todo el espacio de su enlace */
+    .home-book-card {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .card-img {
+        box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        margin-bottom: 0.8rem;
+    }
+
+    /* Ocultamos por completo la capa del botón viejo, ya no hace falta */
+    .card-overlay {
+        display: none !important;
+    }
+
+    .card-info h3 {
+        font-size: 1.05rem;
+    }
+
+    /* ── 3. SECCIÓN DE GÉNEROS (Scroll Horizontal Limpio) ── */
+    .genres-section {
+        padding: 2.5rem 0;
+    }
+
+    .genres-pills {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important; /* Evita que salten hacia abajo */
+        overflow-x: auto !important;
+        gap: 0.8rem !important;
+        padding: 5px 0 15px 0 !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .genres-pills::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .genre-item {
+        flex: 0 0 auto !important; /* Impide que las píldoras se achiquen */
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    /* ── 4. FOOTER ── */
+    .main-footer {
+        padding: 2rem 1rem;
+        font-size: 0.85rem;
+    }
 }

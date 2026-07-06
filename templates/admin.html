@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookio — Admin Dashboard</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
@@ -154,7 +154,7 @@
                                 data-url="{{ url_for('admin_delete_book', id=libro.id) }}" 
                                 onclick="confirmarDeleteBook(this)">
                             <i class="fas fa-trash"></i>
-                        </button>                    
+                        </button>
                     </div>
                 </div>
                 {% endfor %}

@@ -92,33 +92,6 @@ body {
 .nav-item i { color: var(--primary); font-size: .75rem; }
 .nav-item:hover { color: var(--primary); background: var(--primary-light); }
 
-/* ── FLASH MESSAGES ─────────────────────── */
-.flash-container { 
-    position: fixed; 
-    top: 80px; 
-    right: 1.5rem; 
-    z-index: 9999; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 10px; 
-    max-width: 360px; 
-}
-.flash { 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
-    padding: 12px 16px; 
-    border-radius: 10px; 
-    font-size: .88rem; 
-    font-weight: 500; 
-    box-shadow: 0 4px 20px rgba(0,0,0,.1); 
-    animation: slideInR .3s ease forwards; 
-}
-@keyframes slideInR { from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);} }
-.flash-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
-.flash-error   { background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; }
-.flash-close { margin-left: auto; background: none; border: none; color: inherit; cursor: pointer; opacity: .5; }
-
 /* ── LAYOUT ─────────────────────────────── */
 .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem 5rem; }
 .page-header { padding: 2rem 0 1.5rem; }
@@ -158,7 +131,6 @@ body {
     border-radius: 12px; 
     padding: 1rem; 
 }
-.stars { color: #f59e0b; font-size: 1.1rem; margin-bottom: 4px; }
 
 .btn-read {
     display: flex; 
@@ -279,10 +251,19 @@ body {
 .synopsis { 
     margin-top: 2rem; padding: 1.5rem; background: var(--surface); 
     border: 1px solid var(--border-subtle); border-radius: 14px; 
-    border-left: 3px solid var(--primary); 
+    border-left: 3px solid var(--primary); max-width: 702px;
 }
 .synopsis h3 { font-size: .75rem; text-transform: uppercase; color: var(--primary); margin-bottom: 1rem; }
-.synopsis p { line-height: 1.8; color: var(--text-muted); font-size: .95rem; }
+.synopsis p { 
+    line-height: 1.8; 
+    color: var(--text-muted); 
+    font-size: .95rem; 
+    
+    /* 🚨 ESTO EVITA QUE EL TEXTO SE SALGA DE LA CAJA */
+    word-break: break-word;     /* Rompe palabras largas/falsas si superan el ancho */
+    overflow-wrap: anywhere;    /* Garantiza que se parta en cualquier navegador moderno */
+    white-space: normal;        /* Asegura el comportamiento de salto de línea estándar */
+}
 
 /* ── CHAPTERS SECTION ────────────────────── */
 .chapters { margin-top: 3rem; }
@@ -448,9 +429,10 @@ body {
 .btn-login-link {
     display: inline-block;
     background-color: #333333;
+    border: none;
     color: #ffffff;
     text-decoration: none;
-    padding: 8px 18px;
+    padding: 12px 18px;
     font-size: 0.9rem;
     font-weight: 500;
     border-radius: 6px;
@@ -577,23 +559,6 @@ body {
     text-decoration: underline;
 }
 
-/* Responsivo para móviles */
-@media (max-width: 480px) {
-    .comment-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
-    
-    .comment-date {
-        font-size: 0.8rem;
-    }
-    
-    .btn-submit-comment {
-        width: 100%;
-        justify-content: center;
-    }
-}
 /* Reportar */
 
 .btn-trigger-report {
@@ -785,11 +750,129 @@ body {
 
 /* ── RESPONSIVE ─────────────────────────── */
 @media (max-width: 768px) {
-    .book-grid { grid-template-columns: 1fr; gap: 2rem; }
-    .book-title { font-size: 2rem; }
-    .sticky-content { position: static; }
-    .main-cover { max-width: 200px; margin: 0 auto; }
-    .header-container { flex-wrap: wrap; height: auto; padding: 1rem 0; }
-    .search-bar { width: 100%; order: 3; }
-    .search-bar input { width: 100%; }
+
+    /* ── CONTROL DE FLUJO SOBERANO ── */
+    html, body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+    }
+
+    /* ── MANTENER EL HEADER ORIGINAL COMPACTO ── */
+    .site-header {
+        height: auto !important;
+        padding: 0 1rem !important;
+    }
+
+    .header-container {
+        flex-wrap: wrap !important;
+        padding: 0.8rem 0 !important;
+        gap: 0.8rem !important;
+    }
+
+    .nav-item {
+        height: 48px !important;
+        padding: 0 8px !important;
+        font-size: 1rem;
+    }
+
+    .search-bar {
+        width: 100% !important;
+        order: 3;
+    }
+    .search-bar input {
+        width: 100% !important;
+    }
+
+    .page-header {
+        display: none;
+    }
+
+    /* ── ADAPTACIÓN DE LA REJILLA DEL LIBRO (Estructura Unificada) ── */
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 1rem 3rem !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Contenedor padre principal */
+    .book-grid {
+        display: flex !important;
+        flex-direction: column !important; 
+        align-items: center;
+        width: 100% !important;
+        gap: 1.2rem !important;
+        margin-top: 10px;
+    }
+
+    /* Hacemos que actúen como "fantasmas" para liberar a sus hijos */
+    .content, .sidebar {
+        display: contents !important; 
+    }
+
+    .sticky-content {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.8rem !important;
+        width: 100% !important;
+        /* 4. POSICIÓN DE LA IMAGEN Y SUS BOTONES */
+        order: 4 !important; 
+    }
+
+    /* ── ASIGNACIÓN DEL ORDEN ESTRICTO TUS ELEMENTOS ── */
+
+    /* 1. GÉNERO */
+    .genre-badge {
+        display: table !important;
+        margin: 15px auto 0 auto !important;
+        order: 1 !important;
+    }
+
+    /* 2. TÍTULO */
+    .book-title {
+        text-align: center !important;
+        font-size: 1.8rem !important;
+        margin: 0.2rem 0 !important;
+        order: 2 !important;
+    }
+
+    /* 3. AUTOR */
+    .book-author {
+        text-align: center !important;
+        margin-bottom: 0.5rem !important;
+        order: 3 !important;
+    }
+
+    /* (El orden 4 es .sticky-content que lleva la portada y los botones de abajo) */
+    .main-cover {
+        max-width: 260px !important; 
+        margin: 0 auto 0.5rem auto !important;
+        display: block !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+
+    /* 5. SINOPSIS */
+    .synopsis {
+        order: 5 !important;
+        width: 100% !important;
+        margin-top: 10px;
+    }
+
+    /* 6. CAPÍTULOS */
+    .chapters {
+        order: 6 !important;
+        width: 100% !important;
+    }
+
+    /* 7. COMENTARIOS */
+    .comments-section {
+        order: 7 !important;
+        width: 100% !important;
+    }
+
+    /* Botones de acción al 100% */
+    .btn-read, .btn-favorito, .btn-delete, .btn-edit-owner, .btn-trigger-report, .btn-appeal {
+        width: 100% !important;
+        box-sizing: border-box;
+    }
 }
