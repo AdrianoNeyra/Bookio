@@ -12,12 +12,19 @@ from datetime import datetime, timedelta
 app = Flask(__name__)
 app.secret_key = 'tu_llave_secreta_aqui' # Necesario para sesiones
 
+#db_config = {
+#    'host': 'localhost',
+#    'user': 'root',
+#    'password': '',
+#    'database': 'bookio_db'
+#}
 # Configuración de la base de datos
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '',
-    'database': 'bookio_db'
+    'host': 'mysql-bookio-adrianoneyra2007-5b82.l.aivencloud.com',
+    'user': 'avnadmin',
+    'password': 'AVNS_SSvIvhk1YvEN9kAJd-v',
+    'database': 'bookio_db',
+    'port': '16246'
 }
 
 EMAIL_EMISOR = "adrianoneyra2007@gmail.com"
