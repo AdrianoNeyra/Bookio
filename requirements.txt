@@ -1,7 +1,4 @@
 flask
 mysql-connector-python
-transformers
 werkzeug
 gunicorn
-torch 
-better_profanity

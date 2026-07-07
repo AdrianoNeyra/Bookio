@@ -5,10 +5,9 @@ import smtplib
 import random
 import traceback
 import os
+import re
 from email.mime.text import MIMEText
 from datetime import datetime, timedelta
-from transformers import pipeline
-from better_profanity import profanity
 
 app = Flask(__name__)
 app.secret_key = 'tu_llave_secreta_aqui' # Necesario para sesiones
@@ -24,64 +23,37 @@ db_config = {
 EMAIL_EMISOR = "adrianoneyra2007@gmail.com"
 EMAIL_PASSWORD = "gqyp mkxl lzcu wwqx"
 
-palabras_prohibidas_master = []
+palabras_prohibidas_master = set()
 ruta_txt = "static/assets/censored.txt"
 
 try:
     # Verificamos si el archivo existe antes de intentar abrirlo
     if os.path.exists(ruta_txt):
         with open(ruta_txt, "r", encoding="utf-8") as archivo:
-            # Leemos cada línea, quitamos espacios/saltos de línea y filtramos líneas vacías
-            palabras_prohibidas_master = [linea.strip().lower() for linea in archivo if linea.strip()]
+            # Leemos cada línea, quitamos espacios y filtramos líneas vacías
+            palabras_prohibidas_master = {linea.strip().lower() for linea in archivo if linea.strip()}
         print(f"✅ Se cargaron exitosamente {len(palabras_prohibidas_master)} palabras prohibidas desde el archivo TXT.")
     else:
-        print(f"⚠️ Alerta: No se encontró el archivo '{ruta_txt}'. El filtro rápido estará vacío.")
+        print(f"⚠️ Alerta: No se encontró el archivo '{ruta_txt}'. El filtro estará vacío.")
 except Exception as e:
     print(f"⚠️ Error al leer el archivo de palabras prohibidas: {e}")
 
-# Alimentamos la librería de profanidad con la lista extraída del archivo
-profanity.load_censor_words(palabras_prohibidas_master)
-
-try:
-    moderador_local = pipeline(
-        "zero-shot-classification", 
-        model="facebook/bart-large-mnli"
-    )
-except Exception as e:
-    print(f"⚠️ No se pudo cargar el modelo multilingüe: {e}")
-    moderador_local = None
 
 def verificar_comentario_apropiado(texto):
     # 🚨 CORRECCIÓN 1: Forzamos minúsculas y limpiamos espacios antes de verificar
     texto_limpio = str(texto).lower().strip()
     
     # 🛡️ CAPA 1: FILTRO RÁPIDO
-    if profanity.contains_profanity(texto_limpio):
-        print(f"🚫 Comentario ocultado por CAPA RÁPIDA (Palabra explícita detectada).")
-        return False 
-
-    # 🧠 CAPA 2: INTELIGENCIA ARTIFICIAL
-    if not moderador_local:
-        return True 
+    palabras_texto = set(re.findall(r'\b\w+\b', texto_limpio))
+    
+    # 3. Verificamos si hay alguna intersección con nuestra lista negra
+    coincidencias = palabras_texto.intersection(palabras_prohibidas_master)
+    
+    if coincidencias:
+        print(f"🚫 Comentario ocultado. Palabra(s) explícita(s) detectada(s): {list(coincidencias)}")
+        return False  # El comentario NO es apropiado
         
-    try:
-        # Añadimos "sexual" y "vulgar" para que la IA sepa identificar ese tipo de comentarios
-        etiquetas_candidatas = ["apropiado", "insulto", "odio", "spam", "vulgar", "sexual"]
-        resultado = moderador_local(texto_limpio, candidate_labels=etiquetas_candidatas)
-        
-        etiqueta_ganadora = resultado['labels'][0]
-        probabilidad = resultado['scores'][0]
-        
-        # 🚨 CORRECCIÓN 2: Bajamos el umbral a 0.4 para volver la IA más estricta
-        if etiqueta_ganadora != "apropiado" and probabilidad > 0.52:
-            print(f"🚫 Comentario ocultado por IA. Detectado como: {etiqueta_ganadora} ({round(probabilidad * 100)}%)")
-            return False 
-            
-        return True 
-        
-    except Exception as e:
-        print(f"⚠️ Error al procesar el comentario con la IA: {e}")
-        return True
+    return True
 
 def get_db_connection():
     return mysql.connector.connect(**db_config)
