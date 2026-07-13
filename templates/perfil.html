@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ user_profile.username }} — Bookio</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/logo.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
@@ -70,6 +70,17 @@
                 <a href="{{ url_for('biblioteca') }}" class="btn-lib">
                     <i class="fas fa-book-reader"></i> Minha biblioteca
                 </a>
+                <div class="settings-dropdown-container">
+                    <button type="button" class="btn-settings" id="btnOpenSettings" title="Definições da conta">
+                        <i class="fas fa-cog"></i>
+                    </button>
+
+                    <div class="settings-dropdown-menu" id="settingsMenu">
+                        <button type="button" class="dropdown-item danger" id="btnTriggerDeleteModal">
+                            <i class="fas fa-trash-alt"></i> Eliminar Conta
+                        </button>
+                    </div>
+                </div>
                 <a href="{{ url_for('logout') }}" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i>
                 </a>
@@ -82,7 +93,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Alterar nome de utilizador</h3>
-                <button type="button" id="close-username-modal" class="btn-close-modal">&times;</button>
             </div>
             
             <form action="{{ url_for('atualizar_perfil') }}" method="POST">
@@ -126,6 +136,37 @@
                 {% endif %}
             </div>
             {% endfor %}
+        </div>
+    </div>
+    <div id="deleteAccountModal" class="modal-overlay">
+        <div class="modal-card">
+            <button type="button" class="modal-close" id="btnCloseModal">&times;</button>
+            
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <i class="fas fa-trash-alt modal-icon-danger"></i>
+                    <h2>Eliminar Conta</h2>
+                </div>
+            </div>
+
+            <div class="modal-body">
+                <p class="warning-text">
+                    <strong>Atenção:</strong> Esta ação é permanente e não pode ser desfeita. 
+                    Todos os teus livros, capítulos, comentários e dados associados serão eliminados para sempre.
+                </p>
+                
+                <label for="confirmWordInput">
+                    Para confirmar, escreve a palavra <span class="confirm-keyword">ELIMINAR</span> abaixo:
+                </label>
+                <input type="text" id="confirmWordInput" placeholder="Escreve ELIMINAR..." autocomplete="off">
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" id="btnCancelDelete">Cancelar</button>
+                <button type="button" class="btn-danger-confirm" id="btnConfirmDelete" disabled>
+                    Eliminar a minha conta
+                </button>
+            </div>
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/perfil.js') }}"></script>

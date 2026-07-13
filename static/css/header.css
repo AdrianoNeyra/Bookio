@@ -14,7 +14,7 @@
     --border-subtle:  #e5e7eb;
 }
 
-/* ── HEADER ─────────────────────────────── */
+/* ── HEADER ── */
 .site-header {
     background: #ffffff;
     border-bottom: 1px solid var(--border-subtle);
@@ -36,7 +36,7 @@
     gap: 2rem;
 }
 
-/* ── LOGO ───────────────────────────────── */
+/* ── LOGO ── */
 .logo {
     display: flex;
     align-items: center;
@@ -57,7 +57,7 @@
 
 .logo a span { color: var(--primary); }
 
-/* ── NAV ────────────────────────────────── */
+/* ── NAV ── */
 .user-nav {
     display: flex;
     height: 100%;
@@ -104,16 +104,14 @@
 .control-container { display: flex; height: 100%; align-items: center }
 
 
-/* === BOTÓN Y MENÚ DE NOTIFICACIONES === */
+/* BOTÓN Y MENÚ DE NOTIFICACIONES */
 
-/* El contenedor padre DEBE ser relative para que el menú flote respecto a él */
 .notifications-container {
     position: relative;
     display: inline-block;
-    margin-right: 15px; /* Espacio de separación con el perfil */
+    margin-right: 15px; 
 }
 
-/* Botón de la campana */
 .notif-btn {
     background: none;
     border: none;
@@ -132,12 +130,11 @@
     color: var(--primary, #ff6b6b);
 }
 
-/* Globo rojo de alertas */
 .notif-badge {
     position: absolute;
     top: 2px;
     right: 2px;
-    background-color: #e74c3c; /* Rojo alerta */
+    background-color: #e74c3c;
     color: white;
     font-size: 0.65rem;
     font-weight: bold;
@@ -148,13 +145,12 @@
     text-align: center;
 }
 
-/* --- PANEL DESPLEGABLE (Flotante) --- */
 .notif-dropdown {
     position: absolute;
     top: 100%; 
     right: 0;   
-    width: 360px; /* Ancho fijo mediano */
-    height: 400px; /* ALTO FIJO TOTAL INDEPENDIENTE DEL CONTENIDO */
+    width: 360px;
+    height: 400px; 
     background: #ffffff;
     border: 1px solid #dee2e6;
     border-radius: 12px;
@@ -169,7 +165,6 @@
     display: flex;
 }
 
-/* Encabezado del menú */
 .notif-header {
     padding: 12px 16px;
     border-bottom: 1px solid #eee;
@@ -190,10 +185,9 @@
     text-decoration: underline;
 }
 
-/* Cuerpo con el listado */
 .notif-body {
-    flex: 1; /* Ocupa todo el alto entre el header y el footer */
-    overflow-y: auto; /* Muestra scroll vertical si se desborda */
+    flex: 1; 
+    overflow-y: auto; 
     display: flex;
     flex-direction: column;
 }
@@ -220,7 +214,6 @@
     margin: 0;
 }
 
-/* Cada notificación individual */
 .notif-item {
     display: flex;
     padding: 12px 16px;
@@ -237,12 +230,10 @@
     background-color: #e9eaeb;
 }
 
-/* Estado no leído */
 .notif-item.unread {
     background-color: var(--primary-light);
 }
 
-/* Iconos circulares decorativos dentro del dropdown */
 .notif-avatar {
     width: 45px;
     height: 45px;
@@ -277,7 +268,6 @@
     margin-top: 4px;
 }
 
-/* Pie del menú */
 .notif-footer {
     padding: 10px;
     text-align: center;
@@ -298,7 +288,7 @@
     color: var(--primary);
 }
 
-/* ── USER PROFILE ───────────────────────── */
+/* ── USER PROFILE ── */
 
 .user-btn { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--text-muted);}
 .user-btn::after { display: none !important; }
@@ -314,7 +304,7 @@
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── SCROLLBAR ──────────────────────────── */
+/* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #f3f4f6; }
 ::-webkit-scrollbar-thumb { background: rgba(235,126,37,0.4); border-radius: 3px; }
@@ -322,24 +312,21 @@
 
 
 .hamburger-btn, .close-menu-btn {
-    display: none; /* Ocultos por defecto en pantallas grandes */
+    display: none; 
 }
 .sidebar-overlay {
     display: none;
 }
 
 @media (max-width: 768px) {
-    /* ── 1. AGREGADO: OCULTAR NOTIFICACIONES EN LA HOME ── */
     .home-page .notifications-container {
         display: none !important;
     }
 
-    /* ── 2. AGREGADO: OCULTAR PERFIL ORIGINAL DE LA BARRA SUPERIOR MÓVIL ── */
     .control-container .user-btn.nav-item-profile {
         display: none !important;
     }
 
-    /* Mostrar el botón de tres rayas a la derecha del perfil */
     .hamburger-btn {
         display: flex;
         background: none;
@@ -356,7 +343,6 @@
         color: var(--primary);
     }
 
-    /* Ocultar el texto del perfil e inicio de sesión para que quepan en la barra superior */
     .user-btn span, .nav-item-login {
         font-size: 0.9rem;
     }
@@ -365,33 +351,30 @@
         gap: 0.5rem;
     }
 
-    /* 🚨 TRANSFORMACIÓN DEL NAV EN SIDEBAR DESLIZANTE DESDE LA DERECHA */
     .user-nav {
         position: fixed;
         top: 0;
-        right: -280px; /* Escondido completamente a la derecha fuera de la pantalla */
-        width: 250px;  /* Ancho del menú lateral */
-        height: 100vh; /* Ocupa todo el alto de la pantalla */
+        right: -280px;
+        width: 250px;
+        height: 100vh;
         background: var(--surface);
         box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
         border-radius: 16px 0 0 16px;
         display: flex;
-        flex-direction: column; /* Enlaces uno debajo de otro */
+        flex-direction: column;
         align-items: flex-start;
         justify-content: flex-start;
-        padding: 80px 1.5rem 2rem; /* Espacio superior para que no choque con nada */
+        padding: 80px 1.5rem 2rem;
         gap: 10px;
-        z-index: 1001; /* Por encima de todo */
-        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Animación fluida */
-        box-sizing: border-box; /* Asegura que el padding no rompa la altura del 100vh */
+        z-index: 1001;
+        transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
     }
 
-    /* Clase que añadiremos con JavaScript para abrir el menú */
     .user-nav.open {
-        right: 0; /* Entra deslizándose a la pantalla */
+        right: 0;
     }
 
-    /* Ajuste de los enlaces dentro del Sidebar móvil */
     .user-nav .nav-item {
         width: 100%;
         height: auto;
@@ -401,20 +384,19 @@
         font-size: 1rem;
     }
     .user-nav .nav-item::after {
-        display: none; /* Quitamos la línea de abajo animada de PC */
+        display: none;
     }
 
-    /* ── 3. AGREGADO: ESTILOS PARA EL PERFIL INFERIOR MÓVIL ── */
     .mobile-profile-wrapper {
         width: 100%;
-        margin-top: auto; /* 🔥 La magia de Flexbox: Empuja este bloque al fondo del menú */
+        margin-top: auto;
         padding-top: 1.5rem;
     }
 
     .menu-divider {
         border: 0;
         height: 1px;
-        background: rgba(0, 0, 0, 0.08); /* Línea divisoria muy sutil */
+        background: rgba(0, 0, 0, 0.08);
         margin-bottom: 1.2rem;
     }
 
@@ -443,7 +425,6 @@
         color: var(--text-muted);
     }
 
-    /* Botón de cerrar (X) en la esquina superior del sidebar */
     .close-menu-btn {
         display: flex;
         position: absolute;
@@ -460,7 +441,6 @@
         color: var(--primary);
     }
 
-    /* Fondo oscuro transparente protector */
     .sidebar-overlay {
         position: fixed;
         top: 0;
@@ -476,17 +456,15 @@
     }
     .sidebar-overlay.active {
         opacity: 1;
-        pointer-events: auto; /* Permite hacer clic para cerrar */
+        pointer-events: auto;
     }
 
-    /* Ajuste menor para el botón de notificaciones */
     .notif-dropdown {
         width: 300px;
         right: -40px;
     }
 }
 
-/* Ocultar el perfil del menú hamburguesa cuando estemos en pantalla de PC */
 @media (min-width: 769px) {
     .mobile-profile-wrapper {
         display: none !important;

@@ -1,20 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-    --primary:       #eb7e25;
-    --primary-dark:  #c96a1a;
-    --primary-light: #fff3e8;
-    --bg:            #ffffff;
-    --surface:       #ffffff;
-    --text:          #1a1a1a;
-    --text-muted:    #6b7280;
-    --border:        rgba(235, 126, 37, 0.25);
+    --primary:#eb7e25;
+    --primary-dark:#c96a1a;
+    --primary-light:#fff3e8;
+    --bg:#ffffff;
+    --surface:#ffffff;
+    --text:#1a1a1a;
+    --text-muted:#6b7280;
+    --border:rgba(235, 126, 37, 0.25);
     --border-subtle: #e5e7eb;
-    --font-main:     'DM Sans', sans-serif;
-    --font-serif:    'Playfair Display', serif;
+    --font-main: 'DM Sans', sans-serif;
+    --font-serif: 'Playfair Display', serif;
 }
 
-/* ── RESET & BASE ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body { 
@@ -25,7 +24,6 @@ body {
     min-height: 100vh; 
 }
 
-/* ── LIBRARY LAYOUT ── */
 .library-container { max-width: 1300px; margin: 0 auto; padding: 3rem 2rem 5rem; }
 
 .library-header { margin-bottom: 2.5rem; }
@@ -210,34 +208,32 @@ body {
 .empty-tab a { color: var(--primary); font-weight: 600; text-decoration: none; }
 .empty-tab a:hover { text-decoration: underline; }
 
-/* ── OVERLAY: Fondo oscuro translúcido ── */
+/* ── OVERLAY ── */
 .custom-modal-overlay {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px); /* Suaviza el fondo al estilo iOS/Moderno */
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 99999; /* Por encima de cualquier header o carrusel */
+    z-index: 99999;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
 }
 
-/* Clase activa que se añade con JS */
 .custom-modal-overlay.is-active {
     opacity: 1;
     pointer-events: auto;
 }
 
-/* ── CAJA DEL MODAL ── */
 .custom-modal-box {
     background: #ffffff;
     padding: 2rem;
     border-radius: 16px;
     width: 90%;
-    max-width: 400px; /* Tamaño ideal de recuadro */
+    max-width: 400px;
     text-align: center;
     box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
     transform: scale(0.9);
@@ -248,10 +244,9 @@ body {
     transform: scale(1);
 }
 
-/* Elementos internos */
 .modal-icon-warning {
     font-size: 2.5rem;
-    color: #dc2626; /* Rojo de advertencia */
+    color: #dc2626;
     margin-bottom: 1rem;
 }
 
@@ -268,7 +263,6 @@ body {
     margin-bottom: 1.8rem;
 }
 
-/* Botones de Acción */
 .modal-actions-buttons {
     display: flex;
     gap: 1rem;
@@ -301,15 +295,13 @@ body {
 
 @media (max-width: 768px) {
     
-    /* ── CONTENEDOR GENERAL ── */
     .library-container {
-        padding: 2rem 1rem 4rem; /* Reducimos márgenes laterales */
+        padding: 2rem 1rem 4rem;
     }
 
-    /* Redimensionado de cabeceras */
     .library-header {
         margin-bottom: 1.5rem;
-        text-align: center; /* Centramos el texto para estética móvil */
+        text-align: center;
     }
     .library-header h1 {
         font-size: 1.85rem;
@@ -318,45 +310,42 @@ body {
         font-size: 0.88rem;
     }
 
-    /* ── TABS (Pestañas móviles) ── */
+    /* ── TABS ── */
     .library-tabs {
         margin-bottom: 1.5rem;
-        overflow-x: auto; /* 🚨 CRÍTICO: Si añades más pestañas, el usuario puede arrastrar con el dedo */
+        overflow-x: auto;
         display: flex;
         white-space: nowrap;
-        scrollbar-width: none; /* Oculta la barra en Firefox */
+        scrollbar-width: none; 
     }
     .library-tabs::-webkit-scrollbar {
-        display: none; /* Oculta la barra en Chrome/Safari */
+        display: none; 
     }
 
     .tab-btn {
-        padding: 0.8rem 1rem; /* Botones más compactos */
+        padding: 0.8rem 1rem; 
         font-size: 0.85rem;
-        flex-shrink: 0; /* Evita que el texto se aplaste */
+        flex-shrink: 0; 
     }
 
-    /* ── CUADRÍCULA DE LIBROS (2 Columnas perfectas) ── */
     .book-grid {
-        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); /* Forza 2 libros por fila en casi cualquier móvil */
-        gap: 1rem; /* Espaciado ajustado para pantallas pequeñas */
+        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+        gap: 1rem; 
     }
 
-    /* ── RE-AJUSTE DE TARJETAS ── */
     .ebook-card {
         border-radius: 10px;
     }
-    /* Desactivamos el efecto hover 'TranslateY' en móvil porque es molesto al hacer scroll táctil */
     .ebook-card:hover {
         transform: none; 
     }
 
     .card-content {
-        padding: 0.8rem; /* Menos espacio interno */
+        padding: 0.8rem;
     }
 
     .title {
-        font-size: 0.82rem; /* El título se adapta al espacio de las dos columnas */
+        font-size: 0.82rem;
         margin-bottom: 2px;
     }
 
@@ -373,7 +362,6 @@ body {
         font-size: 11px;
     }
 
-    /* ── BOTONES DE ACCIÓN (Editar / Eliminar) ── */
     .action-buttons {
         gap: 0.4rem;
         padding-top: 0.6rem;
@@ -393,10 +381,9 @@ body {
         font-size: 0.75rem;
     }
 
-    /* ── TARJETA "AÑADIR NUEVO" ── */
     .add-new-card {
         min-height: auto;
-        aspect-ratio: 2/3; /* En móvil imita exactamente la proporción de un libro */
+        aspect-ratio: 2/3;
         gap: 0.5rem;
         padding: 1rem;
         text-align: center;
@@ -409,9 +396,8 @@ body {
     }
 }
 
-/* Ajuste fino para móviles extremadamente delgados (<= 350px) */
 @media (max-width: 350px) {
     .book-grid {
-        grid-template-columns: 1fr; /* Un libro por fila si el dispositivo es diminuto */
+        grid-template-columns: 1fr;
     }
 }

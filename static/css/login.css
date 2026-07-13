@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-    --primary:       #eb7e25;
-    --primary-dark:  #c96a1a;
-    --primary-light: #fff3e8;
-    --bg-main:       linear-gradient(135deg, #fff8f2 0%, #ffffff 50%, #fff3e8 100%);
-    --text:          #1a1a1a;
-    --text-muted:    #6b7280;
-    --border-soft:   rgba(235,126,37,0.25);
-    --border-base:   #e5e7eb;
-    --white:         #ffffff;
+    --primary:#eb7e25;
+    --primary-dark:#c96a1a;
+    --primary-light:#fff3e8;
+    --bg-main: linear-gradient(135deg, #fff8f2 0%, #ffffff 50%, #fff3e8 100%);
+    --text:#1a1a1a;
+    --text-muted:#6b7280;
+    --border-soft:var(--bg-main)(235,126,37,0.25);
+    --border-base:#e5e7eb;
+    --white:#ffffff;
 }
 
 /* Reset & Base */
@@ -31,7 +31,7 @@ body.auth-page {
     grid-template-columns: 1fr 1.2fr;
     width: 900px;
     max-width: 95vw;
-    min-height: 600px; /* Corregido: antes era max-height 50px */
+    min-height: 600px; 
     background: var(--white);
     border-radius: 24px;
     border: 1px solid var(--border-base);
@@ -61,16 +61,11 @@ body.auth-page {
 .visual-content h2 { font-family: 'Playfair Display', serif; font-size: 2.2rem; line-height: 1.15; margin-bottom: 1rem; }
 .visual-content p { opacity: 0.8; font-size: 0.9rem; line-height: 1.6; }
 
-/* Right Panel (Forms) */
+/* Right Panel */
 .auth-form-box { padding: 3rem; display: flex; flex-direction: column; justify-content: center; }
 
 .auth-form { display: none; animation: fadeIn 0.4s ease forwards; }
 .auth-form.active { display: block; }
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
 
 .auth-form h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--text); }
 .subtitle { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 2rem; display: block; }
@@ -103,7 +98,7 @@ body.auth-page {
     font-size: 0.95rem;
 }
 
-/* Buttons & Links */
+/* Buttons and Links */
 .btn-auth {
     width: 100%;
     padding: 1rem;
@@ -130,6 +125,91 @@ body.auth-page {
 .form-links { display: flex; justify-content: space-between; margin-top: 0.8rem; }
 .link, .link-centered { color: var(--primary); text-decoration: none; font-size: 0.85rem; font-weight: 500; }
 .link-centered { display: block; text-align: center; margin-top: 1rem; }
+
+/* 1. Contenedor fijo en la esquina superior derecha */
+#toast-container {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+/* 2. Estilo base de la alerta flotante */
+.toast-item {
+    pointer-events: auto;
+    background-color: #ffffff;
+    color: #1f2937;
+    padding: 14px 20px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 300px;
+    max-width: 420px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    border-left: 5px solid #ef4444;
+    animation: toastSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    transition: all 0.4s ease;
+}
+
+/* 3. Icono del Toast */
+.toast-item .toast-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.toast-item.error {
+    border-left-color: #ef4444;
+}
+.toast-item.error .toast-icon {
+    color: #ef4444;
+}
+
+.toast-item.success {
+    border-left-color: #10b981;
+}
+.toast-item.success .toast-icon {
+    color: #10b981;
+}
+
+.toast-item.hide {
+    animation: toastSlideOut 0.4s ease forwards;
+}
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes toastSlideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+}
+
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 /* Responsive */
 @media (max-width: 768px) {

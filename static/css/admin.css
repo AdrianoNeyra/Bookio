@@ -109,14 +109,12 @@ body.admin-body {
     cursor: pointer;
 }
 
-/* Colores de los botones */
 .btn-icon.promote {
     background-color: #dcfce7;
     color: #166534;
 }
 .btn-icon.promote:hover { background-color: #bbf7d0; }
 
-/* Botón de Banear (Naranja/Amarillo) */
 .btn-icon.ban {
     background-color: #fef3c7;
     color: #d97706;
@@ -124,12 +122,11 @@ body.admin-body {
 .btn-icon.ban:hover { background-color: #fde68a; }
 
 .btn-icon.unban {
-    background-color: #e0f2fe; /* Azul claro */
+    background-color: #e0f2fe;
     color: #0369a1;
 }
 .btn-icon.unban:hover { background-color: #bae6fd; }
 
-/* Botón de Eliminar (Rojo fuerte) */
 .btn-icon.delete {
     background-color: #fee2e2;
     color: #dc2626;
@@ -146,17 +143,16 @@ body.admin-body {
 
 .rank-badge.admin {
     background: #fef3c7;
-    color: #92400e; /* Dorado/Naranja para Admin */
+    color: #92400e; 
     border: 1px solid #f59e0b;
 }
 
 .rank-badge.user {
     background: #f1f5f9;
-    color: #475569; /* Gris para usuarios normales */
+    color: #475569; 
     border: 1px solid #cbd5e1;
 }
 
-/* Libros en Admin */
 .books-admin-grid { padding: 1.5rem; }
 
 .admin-book-item {
@@ -169,17 +165,17 @@ body.admin-body {
 .book-main-info {
     display: flex;
     align-items: center;
-    gap: 15px; /* Espacio entre imagen y texto */
+    gap: 15px;
     margin-bottom: 15px;
 }
 
-/* Sobrescribimos el width 100% solo para el admin */
+
 .card-image-admin {
-    width: 50px; /* Tamaño fijo para la lista */
+    width: 50px; 
     height: 75px;
     border-radius: 4px;
     overflow: hidden;
-    flex-shrink: 0; /* Evita que la imagen se aplaste */
+    flex-shrink: 0; 
 }
 
 .mini-cover {
@@ -196,8 +192,6 @@ body.admin-body {
     border-radius: 6px;
 }
 
-/* === CONTROL DE TEXTOS LARGOS (MÉTODO FLEXIBLE NATIVO) === */
-
 .admin-comment-preview-wrapper {
     position: relative;
     max-width: 380px;
@@ -205,7 +199,6 @@ body.admin-body {
     display: block;
 }
 
-/* Estado inicial colapsado: cortamos a 3 líneas exactas */
 .admin-comment-text {
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;
@@ -217,19 +210,16 @@ body.admin-body {
     font-style: italic;
     position: relative;
     
-    /* 🚨 ESTO OBLIGA AL TEXTO A IR HACIA ABAJO Y NO A LA DERECHA */
-    white-space: normal !important;  /* Permite saltos de línea normales */
-    word-break: break-word !important; /* Rompe palabras largas si es necesario */
-    overflow-wrap: anywhere !important; /* Asegura compatibilidad moderna */
+    white-space: normal !important; 
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
 
-    /* Cortamos por líneas de texto para el estado colapsado */
     display: -webkit-box;
     -webkit-line-clamp: 3; 
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-/* Icono de la comilla */
 .admin-comment-text .quote-icon {
     position: absolute;
     top: 9px;
@@ -238,16 +228,14 @@ body.admin-body {
     font-size: 1rem;
 }
 
-/* 🚨 CUANDO EL CHECKBOX SE ACTIVA: Rompemos el candado por completo */
 .admin-comment-checkbox:checked ~ .admin-comment-text {
     display: block !important;
     overflow: visible !important;
-    max-height: none !important; /* Eliminamos cualquier límite de píxeles */
+    max-height: none !important;
     background-color: #ffffff;
     border-color: #dee2e6;
 }
 
-/* --- TEXTO DINÁMICO DEL BOTÓN --- */
 .btn-admin-comment-expand {
     background: none;
     border: none;
@@ -267,12 +255,10 @@ body.admin-body {
     text-decoration: underline;
 }
 
-/* Texto inicial */
 .btn-admin-comment-expand::before {
     content: "Ver tudo";
 }
 
-/* Texto expandido */
 .admin-comment-checkbox:checked ~ .btn-admin-comment-expand::before {
     content: "Colapsar";
 }
@@ -304,5 +290,5 @@ table rows,
 td {
     height: auto !important;
     overflow: visible !important;
-    vertical-align: top; /* Alinea el contenido arriba para que no se descentre al crecer */
+    vertical-align: top; 
 }

@@ -1,6 +1,3 @@
-/* biblioteca.js */
-
-// ── TAB SYSTEM (data-tab="...") ──────────
 function openTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(t => {
         t.classList.remove('active');
@@ -17,7 +14,7 @@ function openTab(tabName) {
 
 function toggleFavoritoBiblioteca(btn) {
     const libroId = btn.getAttribute('data-id');
-    const card = btn.closest('.ebook-card'); // Ajusta esta clase según tu diseño
+    const card = btn.closest('.ebook-card');
 
     fetch(`/favorito/${libroId}`, {
         method: 'POST',
@@ -26,7 +23,6 @@ function toggleFavoritoBiblioteca(btn) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'removed') {
-            // Animación suave para que desaparezca de la vista de favoritos
             card.style.transition = 'all 0.3s ease';
             card.style.opacity = '0';
             card.style.transform = 'scale(0.9)';
@@ -38,54 +34,44 @@ function toggleFavoritoBiblioteca(btn) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Bind tab buttons
     document.querySelectorAll('[data-tab]').forEach(btn => {
         btn.addEventListener('click', () => openTab(btn.dataset.tab));
     });
 
-    // Garantir que primeiro tab visível por defeito
     const firstActive = document.querySelector('.tab-content.active');
     if (firstActive) firstActive.style.display = 'block';
 
-    // Abrir tab por URL (?tab=mis-libros)
     const tabParam = new URLSearchParams(window.location.search).get('tab');
     if (tabParam) openTab(tabParam);
 
-    // ── ELIMINAR LIVRO ───────────────────────
     const modalDelete = document.getElementById('delete-modal');
     const btnConfirmDelete = document.getElementById('btn-modal-confirm');
     const btnCancelDelete = document.getElementById('btn-modal-cancel');
     const modalBookTitle = document.getElementById('modal-book-title');
 
-    // Variable global temporal para saber qué libro está en cola de borrado
     let libroIdDestino = null;
 
-    // 2. Asignamos los eventos a los botones de eliminar
     document.querySelectorAll('.btn-delete').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             
-            // Guardamos los datos del libro seleccionado
             libroIdDestino = btn.dataset.id;
             const title = btn.dataset.title;
 
-            // Inyectamos el título y abrimos tu modal personalizado
             modalBookTitle.textContent = `"${title}"`;
             modalDelete.classList.add('is-active');
         });
     });
 
-    // 3. Escuchamos el clic en el botón "Sim, Eliminar" dentro del modal
+
     btnConfirmDelete.addEventListener('click', async () => {
         if (!libroIdDestino) return;
 
         try {
-            // Tu FETCH original
             const response = await fetch(`/eliminar/${libroIdDestino}`, { method: 'POST' });
             const data = await response.json();
 
             if (data.success) {
-                // Borra el elemento del HTML sin recargar
                 document.getElementById(`libro-${libroIdDestino}`).remove();
             } else {
                 alert('Error al eliminar');
@@ -93,19 +79,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             alert('Error de conexión');
         } finally {
-            // Cerramos el modal siempre al terminar la operación
             cerrarModal();
         }
     });
 
-    // Funciones para cerrar el modal de forma limpia
     function cerrarModal() {
         modalDelete.classList.remove('is-active');
         libroIdDestino = null; 
     }
-
     btnCancelDelete.addEventListener('click', cerrarModal);
-
     modalDelete.addEventListener('click', (e) => {
         if (e.target === modalDelete) cerrarModal();
     });

@@ -1,13 +1,11 @@
-/* login.js */
 document.addEventListener('DOMContentLoaded', () => {
 
-    const loginForm    = document.getElementById('loginForm');
+    const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
-    const RPForm1      = document.getElementById('RPForm1');
-    const RPForm2      = document.getElementById('RPForm2');
+    const RPForm1 = document.getElementById('RPForm1');
+    const RPForm2 = document.getElementById('RPForm2');
     let   email_recover = '';
 
-    // ── FORM SWITCHER (data-form="...") ─────
     function selectorForm(key) {
         const map = { login: loginForm, register: registerForm, rp1: RPForm1, rp2: RPForm2 };
         Object.entries(map).forEach(([k, el]) => {
@@ -15,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
             el.classList.toggle('active', k === key);
         });
         hideError();
-        // Focus first input
         const form = map[key];
         if (form) {
             const first = form.querySelector('input');
@@ -23,12 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Bind data-form links
     document.querySelectorAll('[data-form]').forEach(el => {
         el.addEventListener('click', e => { e.preventDefault(); selectorForm(el.dataset.form); });
     });
 
-    // ── ERROR HELPERS ────────────────────────
     function showError(msg) {
         const err = document.getElementById('error');
         if (!err) return;
@@ -39,23 +34,80 @@ document.addEventListener('DOMContentLoaded', () => {
         if (err) { err.style.display = 'none'; err.textContent = ''; }
     }
 
-    // ── LOGIN VALIDATION ─────────────────────
+    function mostrarToast(mensaje, tipo = 'error') {
+        let contenedor = document.getElementById('toast-container');
+        if (!contenedor) {
+            contenedor = document.createElement('div');
+            contenedor.id = 'toast-container';
+            document.body.appendChild(contenedor);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `toast-item ${tipo}`;
+        const icono = tipo === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
+        
+        toast.innerHTML = `
+            <i class="fas ${icono} toast-icon"></i>
+            <span class="toast-message">${mensaje}</span>
+        `;
+
+        contenedor.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('hide');
+            setTimeout(() => { toast.remove(); }, 400);
+        }, 4000);
+    }
+
     if (loginForm) {
-        loginForm.addEventListener('submit', e => {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
             const email = loginForm.querySelector('[name="loginEmail"]');
             const pass  = loginForm.querySelector('[name="loginPass"]');
 
-            if (!email?.value.trim()) { e.preventDefault(); email?.focus(); return; }
-            if (!email.value.includes('@')) { e.preventDefault(); email.focus(); return; }
-            if (!pass?.value) { e.preventDefault(); pass?.focus(); return; }
+            if (!email?.value.trim()) { email?.focus(); return; }
+            if (!email.value.includes('@')) { email.focus(); return; }
+            if (!pass?.value) { pass?.focus(); return; }
 
-            // Submit OK — show loading
             const btn = loginForm.querySelector('.btn-auth');
-            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A entrar...'; }
+            const originalHTML = btn ? btn.innerHTML : '';
+
+            if (btn) { 
+                btn.disabled = true; 
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A entrar...'; 
+            }
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    body: new FormData(loginForm)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    mostrarToast(data.message, 'error');
+                    
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = originalHTML;
+                    }
+                }
+            } catch (error) {
+                console.error('Erro no Fetch Login:', error);
+                mostrarToast('Erro de ligação ao servidor. Tente novamente.', 'error');
+                
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                }
+            }
         });
     }
 
-    // ── REGISTER VALIDATION ──────────────────
     if (registerForm) {
         registerForm.addEventListener('submit', e => {
             e.preventDefault();
@@ -80,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ── PASSWORD STRENGTH BAR ────────────────
     const regPass = document.getElementById('regPass');
     if (regPass) {
         const bar = document.createElement('div');
@@ -104,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ── PASSWORD TOGGLE (eye icon) ───────────
     document.querySelectorAll('.input-wrapper').forEach(wrapper => {
         const input = wrapper.querySelector('input[type="password"]');
         if (!input) return;
@@ -122,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.appendChild(btn);
     });
 
-    // ── RECOVER PASSWORD (SOLICITAR) ─────────
     if (RPForm1) {
         RPForm1.addEventListener('submit', e => {
             const input = document.getElementById('RPEmail');
@@ -139,11 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A enviar código...';
             }
-            // El formulario se envía de forma nativa a /forgot_password
         });
     }
 
-    // ── RECOVER PASSWORD (VERIFICAR) ─────────
     if (RPForm2) {
         RPForm2.addEventListener('submit', e => {
             const code = document.getElementById('rpCode');
@@ -171,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initial focus
     const first = document.querySelector('.auth-form.active input');
     if (first) setTimeout(() => first.focus(), 300);
 });

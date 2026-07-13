@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap');
 
 :root {
-    --primary:       #eb7e25;
-    --primary-dark:  #c96a1a;
+    --primary:#eb7e25;
+    --primary-dark:#c96a1a;
     --primary-light: #fff3e8;
-    --star-gold:     #f59e0b; /* COLOR DE ESTRELLAS MANTENIDO */
-    --text:          #1a1a1a;
-    --text-muted:    #6b7280;
-    --bg:            #ffffff;
-    --border:        #e5e7eb;
+    --star-gold:#f59e0b;
+    --text:#1a1a1a;
+    --text-muted:#6b7280;
+    --bg:#ffffff;
+    --border:#e5e7eb;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -18,7 +18,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     display: none !important;
 }
 
-/* ── HERO ───────────────────────────────── */
+/* ── HERO ── */
 .hero {
     position: relative;
     padding: 6rem 2rem;
@@ -135,7 +135,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     50% { transform: translateY(-20px) rotate(2deg); }
 }
 
-/* ── CONTENT SECTION ────────────────────── */
+/* ── CONTENT SECTION ── */
 .content-section { max-width: 1300px; margin: 4rem auto; padding: 0 2rem; }
 
 .section-top {
@@ -228,7 +228,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 
 @media (max-width: 768px) {
 
-    /* ── 1. AJUSTES DEL HERO EN MÓVIL ── */
     .hero {
         padding: 3rem 1rem;
         min-height: auto;
@@ -256,7 +255,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
         width: 100%;
     }
 
-    /* Estadísticas agrupadas en móvil */
     .hero-stats {
         justify-content: center;
         gap: 1.5rem;
@@ -270,12 +268,10 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
         font-size: 0.7rem;
     }
 
-    /* Ocultamos los libros flotantes decorativos para optimizar espacio */
     .hero-visual-side {
         display: none !important;
     }
 
-    /* ── 2. SECCIÓN CATÁLOGO (Carrusel con Enlace Nativo) ── */
     .content-section {
         margin: 2rem auto;
         padding: 0 0 0 1rem; 
@@ -295,7 +291,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
         font-size: 0.85rem;
     }
 
-    /* CONVERSIÓN A CARRUSEL HORIZONTAL TÁCTIL */
     .books-grid {
         display: flex !important;
         flex-direction: row !important;
@@ -311,14 +306,12 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
         display: none !important;
     }
 
-    /* El enlace contenedor es el que ahora maneja el tamaño del carrusel */
     .book-card-link {
         flex: 0 0 85% !important; 
         scroll-snap-align: start !important;
         box-sizing: border-box;
     }
 
-    /* La tarjeta pasa a ocupar todo el espacio de su enlace */
     .home-book-card {
         width: 100% !important;
         margin: 0 !important;
@@ -329,7 +322,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
         margin-bottom: 0.8rem;
     }
 
-    /* Ocultamos por completo la capa del botón viejo, ya no hace falta */
     .card-overlay {
         display: none !important;
     }
@@ -338,7 +330,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
         font-size: 1.05rem;
     }
 
-    /* ── 3. SECCIÓN DE GÉNEROS (Scroll Horizontal Limpio) ── */
     .genres-section {
         padding: 2.5rem 0;
     }
@@ -346,7 +337,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     .genres-pills {
         display: flex !important;
         flex-direction: row !important;
-        flex-wrap: nowrap !important; /* Evita que salten hacia abajo */
+        flex-wrap: nowrap !important;
         overflow-x: auto !important;
         gap: 0.8rem !important;
         padding: 5px 0 15px 0 !important;
@@ -358,12 +349,11 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     }
 
     .genre-item {
-        flex: 0 0 auto !important; /* Impide que las píldoras se achiquen */
+        flex: 0 0 auto !important;
         padding: 0.6rem 1.2rem;
         font-size: 0.9rem;
     }
 
-    /* ── 4. FOOTER ── */
     .main-footer {
         padding: 2rem 1rem;
         font-size: 0.85rem;

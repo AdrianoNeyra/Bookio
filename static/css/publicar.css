@@ -1,24 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-    --primary:       #eb7e25;
-    --primary-dark:  #c96a1a;
-    --primary-light: #fff3e8;
-    --bg:            #f7f8fa;
-    --surface:       #ffffff;
-    --text:          #1a1a1a;
-    --text-muted:    #6b7280;
-    --border:        rgba(235,126,37,0.25);
+    --primary:#eb7e25;
+    --primary-dark:#c96a1a;
+    --primary-light:#fff3e8;
+    --bg:#f7f8fa;
+    --surface:#ffffff;
+    --text:#1a1a1a;
+    --text-muted:#6b7280;
+    --border:rgba(235,126,37,0.25);
     --border-subtle: #e5e7eb;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* ── LAYOUT ─────────────────────────────── */
+/* ── LAYOUT ── */
 .creation-container { max-width: 1200px; margin: 2.5rem auto; display: grid; grid-template-columns: 1.6fr 1fr; gap: 2.5rem; padding: 0 2rem 5rem; align-items: start; }
 
-/* ── FORM SECTION ───────────────────────── */
+/* ── FORM SECTION ── */
 .form-section { background: var(--surface); border: 1px solid var(--border-subtle); padding: 2.5rem; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.05); }
 .form-header { margin-bottom: 2rem; }
 .form-header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: .4rem; letter-spacing: -.5px; }
@@ -44,7 +44,7 @@ input:focus, textarea:focus, select:focus {
 
 .genre-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Crea exactamente dos columnas de igual tamaño */
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
     background: #fdfdfd;
     padding: 15px;
@@ -60,13 +60,13 @@ input:focus, textarea:focus, select:focus {
 }
 
 .genre-item:hover {
-    transform: translateX(3px); /* Un pequeño efecto visual al pasar el ratón */
+    transform: translateX(3px);
 }
 
 .genre-item input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: #eb7e25; /* Usa el color naranja de Bookio para el check */
+    accent-color: #eb7e25; 
     cursor: pointer;
 }
 
@@ -74,14 +74,14 @@ input:focus, textarea:focus, select:focus {
     cursor: pointer;
     font-size: 0.95rem;
     color: #444;
-    margin-bottom: 0; /* Evita desalineación */
+    margin-bottom: 0;
 }
 
 textarea { resize: vertical; max-height: 250px; }
 
 .char-count { font-size: .75rem; color: var(--text-muted); text-align: right; margin-top: 4px; }
 
-/* ── UPLOAD ZONE ────────────────────────── */
+/* ── UPLOAD ZONE ── */
 .upload-zone {
     border: 2px dashed rgba(235,126,37,.3);
     border-radius: 12px; padding: 2.5rem 2rem;
@@ -99,7 +99,7 @@ textarea { resize: vertical; max-height: 250px; }
 #coverUpload { pointer-events: auto; }
 #imagePreview { max-height: 180px; object-fit: cover; border-radius: 8px; width: 100%; }
 
-/* ── FORM ACTIONS ───────────────────────── */
+/* ── FORM ACTIONS ── */
 .form-actions { margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 1.5rem; }
 
 .btn-primary, .btn-secondary {
@@ -114,7 +114,7 @@ textarea { resize: vertical; max-height: 250px; }
 .btn-secondary { background: white; border: 1.5px solid var(--border-subtle); color: var(--text-muted); }
 .btn-secondary:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
-/* ── PREVIEW ────────────────────────────── */
+/* ── PREVIEW ── */
 .preview-section { position: sticky; top: 88px; }
 
 .preview-container { background: var(--primary-light); border: 1px solid rgba(235,126,37,.2); padding: 2rem; border-radius: 16px; text-align: center; }
@@ -133,45 +133,38 @@ textarea { resize: vertical; max-height: 250px; }
 .price-row { display: flex; justify-content: space-between; margin-top: 8px; align-items: center; font-size: .78rem; color: var(--text-muted); }
 
 @media (max-width: 900px) {
-    /* (Tus reglas actuales se quedan intactas aquí) */
     .creation-container { grid-template-columns: 1fr; }
     .preview-section { order: -1; position: static; margin-bottom: 1.5rem; }
-
-    /* ── 🚨 NUEVOS AJUSTES PARA LA SECCIÓN DE PUBLICACIÓN MÓVIL ── */
     
     .creation-container {
-        padding: 0 1rem 3rem; /* Reducimos márgenes laterales */
+        padding: 0 1rem 3rem; 
         margin: 1rem auto;
     }
 
-    /* Reducimos el padding interno de las tarjetas */
     .form-section, .preview-container {
         padding: 1.5rem 1.25rem;
-        border-radius: 12px; /* Esquinas ligeramente más compactas */
+        border-radius: 12px; 
     }
 
     .form-header h1 {
-        font-size: 1.7rem; /* Título un poco más adaptado */
+        font-size: 1.7rem; 
     }
 
-    /* Ajustamos las cajas de texto en pantallas pequeñas */
     input[type="text"], input[type="number"], select, textarea {
         padding: 0.75rem 0.9rem;
         font-size: 0.9rem;
     }
 
-    /* 🚨 CRÍTICO: La lista de géneros pasa de 2 columnas a 1 sola */
     .genre-grid {
-        grid-template-columns: 1fr; /* Evita que etiquetas largas se desborden o solapen */
+        grid-template-columns: 1fr;
         padding: 12px;
         gap: 10px;
     }
 
     .genre-item label {
-        font-size: 0.9rem; /* Texto un pelín más compacto para facilitar la lectura */
+        font-size: 0.9rem;
     }
 
-    /* Zona de subida de portada */
     .upload-zone {
         padding: 2rem 1rem;
     }
@@ -182,15 +175,14 @@ textarea { resize: vertical; max-height: 250px; }
         font-size: 0.85rem;
     }
 
-    /* 🚨 BOTONES DE ACCIÓN FLUIDOS */
     .form-actions {
-        flex-direction: column-reverse; /* El botón principal de publicar queda arriba al apilarse */
+        flex-direction: column-reverse;
         gap: 0.8rem;
         width: 100%;
     }
 
     .btn-primary, .btn-secondary {
-        width: 100%; /* Botones de lado a lado muy fáciles de presionar con el pulgar */
+        width: 100%;
         justify-content: center;
         padding: 0.8rem 1.2rem;
         font-size: 0.9rem;

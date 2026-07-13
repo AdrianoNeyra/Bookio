@@ -1,6 +1,4 @@
-/* publicar.js */
 document.addEventListener('DOMContentLoaded', () => {
-    // ── SELECTORES ──
     const $ = id => document.getElementById(id);
     const nodes = {
         title: $('bookTitle'), genre: $('bookGenre'), desc: $('bookDesc'),
@@ -14,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el && target) target.textContent = el.value.trim() || def;
     };
 
-    // ── PREVIEW & CONTADOR ──
+
     nodes.title?.addEventListener('input', () => updatePreview(nodes.title, nodes.cardTitle, 'Título do Livro'));
     nodes.genre?.addEventListener('change', () => updatePreview(nodes.genre, nodes.cardGenre, 'GÉNERO'));
 
@@ -26,13 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ── BOTÓN CANCELAR / VOLTAR (Añadido) ──
+
     document.querySelector('[data-back="true"]')?.addEventListener('click', e => {
         e.preventDefault();
         window.history.length > 1 ? window.history.back() : window.location.href = '/explorar';
     });
 
-    // ── UPLOAD LOGIC ──
+
     const processFile = file => {
         if (!file.type.startsWith('image/')) return uploadErr('Usa JPG ou PNG.');
         if (file.size > 5 * 1024 * 1024) return uploadErr('Máx 5MB.');
@@ -57,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         nodes.cover.onclick = e => e.stopPropagation();
         nodes.cover.onchange = () => nodes.cover.files[0] && processFile(nodes.cover.files[0]);
 
-        // Drag & Drop con setDrag optimizado
         const setDrag = on => {
             nodes.zone.style.cssText = on ? 'border-color:var(--p); background:var(--p-soft); transform:scale(1.01)' : '';
         };
@@ -82,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const uploadErr = msg => showMsg('⚠ ' + msg, '#e11d48');
 
-    // ── VALIDACIÓN & FLASH ──
+
     nodes.form?.addEventListener('submit', e => {
         if (!nodes.title.value.trim() || !nodes.genre.value) {
             e.preventDefault();

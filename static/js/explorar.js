@@ -1,28 +1,23 @@
 document.addEventListener('DOMContentLoaded', function() {
     
-    // ── ELEMENTOS DE FILTROS Y GRID ──
     const filterForm = document.getElementById("filterForm");
     const ebookGrid = document.getElementById("ebookGrid");
     const resultsCount = document.querySelector(".results-count strong");
     const sortSelect = document.getElementById('sort-select');
 
-    // ── FUNCIÓN CENTRAL DE AJAX (Petición sin recargar) ──
+
     function ejecutarFiltroAjax() {
         if (!filterForm || !ebookGrid) return;
 
-        // Capturamos los datos actuales del formulario (Buscador y Checkboxes)
         const formData = new FormData(filterForm);
         const searchParams = new URLSearchParams(formData);
 
-        // Si existe el selector de ordenación, añadimos también su valor actual a la petición
         if (sortSelect) {
             searchParams.set('sort', sortSelect.value);
         }
 
-        // Actualizamos la URL visual del navegador de forma elegante sin recargar
         window.history.pushState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
 
-        // Realizamos la petición en segundo plano
         fetch(`${window.location.pathname}?${searchParams.toString()}`, {
             headers: { "X-Requested-With": "XMLHttpRequest" }
         })
@@ -34,28 +29,24 @@ document.addEventListener('DOMContentLoaded', function() {
             const nuevoGrid = doc.getElementById("ebookGrid");
             const nuevoContador = doc.querySelector(".results-count strong");
 
-            // Reemplazamos la cuadrícula de libros y el contador de resultados
             if (nuevoGrid && ebookGrid) ebookGrid.innerHTML = nuevoGrid.innerHTML;
             if (nuevoContador && resultsCount) resultsCount.innerText = nuevoContador.innerText;
         })
         .catch(error => console.error("Error al filtrar por AJAX:", error));
     }
 
-    // Interceptamos los cambios en los Checkboxes y el buscador dentro del Formulario
     if (filterForm) {
         filterForm.addEventListener('change', function(e) {
             e.preventDefault();
             ejecutarFiltroAjax();
         });
         
-        // Evitamos que al pulsar 'Enter' en la barra de búsqueda del sidebar se recargue la página
         filterForm.addEventListener('submit', function(e) {
             e.preventDefault();
             ejecutarFiltroAjax();
         });
     }
 
-    // 🚨 MODIFICADO: Ahora el ordenamiento también usa AJAX y no recarga la página
     if (sortSelect) {
         sortSelect.addEventListener('change', function() {
             ejecutarFiltroAjax();
@@ -63,7 +54,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    // ── INTERFAZ DE FILTROS FLOTANTES MÓVIL (Tu código intacto) ──
     const floatingFilterBtn = document.getElementById("floatingFilterBtn");
     const closeFiltersBtn = document.getElementById("closeFiltersBtn");
     const sidebarFilters = document.getElementById("sidebarFilters");
@@ -88,7 +78,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// ── SISTEMA DE NOTIFICACIONES (Tu código intacto) ──
 function toggleNotifDropdown(event) {
     event.stopPropagation();
     const dropdown = document.getElementById('notifDropdown');

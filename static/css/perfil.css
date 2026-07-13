@@ -1,21 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-    --primary:       #eb7e25;
-    --primary-dark:  #c96a1a;
-    --primary-light: #fff3e8;
-    --bg:            #f7f8fa;
-    --surface:       #ffffff;
-    --text:          #1a1a1a;
-    --text-muted:    #6b7280;
-    --border:        rgba(235,126,37,0.2);
-    --border-subtle: #e5e7eb;
+    --primary:#eb7e25;
+    --primary-dark:#c96a1a;
+    --primary-light:#fff3e8;
+    --bg:#f7f8fa;
+    --surface:#ffffff;
+    --text:#1a1a1a;
+    --text-muted:#6b7280;
+    --border:rgba(235,126,37,0.2);
+    --border-subtle:#e5e7eb;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-/* ── PROFILE HERO ───────────────────────── */
+/* ── PROFILE HERO ── */
 .profile-hero {
     background: var(--surface);
     border-bottom: 1px solid var(--border-subtle);
@@ -39,7 +39,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 }
 
 .avatar {
-    position: relative; /* Obligatorio */
+    position: relative;
     width: 100px; 
     height: 100px;
     border-radius: 50%;
@@ -99,10 +99,13 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .p-stat .n { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--primary); display: block; }
 .p-stat .l { font-size: .72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
 
-.profile-actions { margin-left: auto; }
+.profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
 
-
-/* Botón del lápiz junto al h1 */
 .btn-trigger-edit {
     background: none;
     border: none;
@@ -117,7 +120,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     transform: scale(1.1);
 }
 
-/* Contenedor de fondo oscuro para el menú modal */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -128,19 +130,17 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000; /* Asegura que esté por encima de todo */
+    z-index: 2000;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
 }
 
-/* Clase activa para mostrar el menú */
 .modal-overlay.active {
     opacity: 1;
     pointer-events: auto;
 }
 
-/* Caja blanca del menú */
 .modal-content {
     background: var(--surface, #ffffff);
     width: 100%;
@@ -155,7 +155,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     transform: translateY(0);
 }
 
-/* Cabecera del menú */
 .modal-header {
     padding: 1.2rem 1.5rem;
     border-bottom: 1px solid var(--border-subtle, #eee);
@@ -168,10 +167,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888;
 }
 
-/* Cuerpo del menú */
 .modal-body { padding: 1.5rem; }
 
-/* Caja de advertencia estilo alerta */
 .alert-warning-box {
     background-color: rgba(235, 126, 37, 0.1);
     border-left: 4px solid var(--primary, #eb7e25);
@@ -185,7 +182,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .alert-warning-box i { color: var(--primary, #eb7e25); margin-top: 0.2rem; }
 .alert-warning-box p { margin: 0; font-size: 0.9rem; color: #555; line-height: 1.4; }
 
-/* Input de texto en el modal */
+
 .form-group-modal { display: flex; flex-direction: column; gap: 0.5rem; }
 .form-group-modal label { font-size: 0.9rem; font-weight: 600; }
 .form-group-modal input {
@@ -193,7 +190,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 }
 .form-group-modal input:focus { outline: none; border-color: var(--primary, #eb7e25); }
 
-/* Botones de acción inferiores */
 .modal-footer {
     padding: 1rem 1.5rem;
     background: #f9f9f9;
@@ -221,13 +217,13 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     border: 1px solid rgba(255, 0, 0, 0.25);
 }
 
-/* ── CONTENT ────────────────────────────── */
+/* ── CONTENT ── */
 .profile-content { max-width: 1100px; margin: 2.5rem auto; padding: 0 2rem 5rem; }
 
 .section-label { font-size: .72rem; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); font-weight: 600; margin-bottom: .4rem; }
 .section-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--text); margin-bottom: 1.5rem; }
 
-/* ── BOOK GRID ──────────────────────────── */
+/* ── BOOK GRID ── */
 .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px,1fr)); gap: 1.5rem; }
 
 .ebook-card { background: var(--surface); border: 1px solid var(--border-subtle); border-radius: 12px; overflow: hidden; transition: all .3s; text-decoration: none; display: block; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
@@ -241,14 +237,262 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .genre { font-size: .65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 4px; font-weight: 600; }
 .card-title { font-size: .88rem; font-weight: 600; color: var(--text); line-height: 1.3; }
 
-/* ── EMPTY ──────────────────────────────── */
+/* ── EMPTY ── */
 .empty { grid-column: 1/-1; text-align: center; padding: 5rem 2rem; color: var(--text-muted); }
 .empty i { font-size: 3rem; color: rgba(235,126,37,.3); display: block; margin-bottom: 1rem; }
 .empty a { color: var(--primary); font-weight: 600; text-decoration: none; display: inline-block; margin-top: .5rem; }
 
+.btn-settings {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+}
+
+.btn-settings:hover {
+    background-color: #e5e7eb;
+    color: #1f2937;
+}
+
+.settings-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.settings-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    min-width: 170px;
+    padding: 6px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+}
+
+.settings-dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 0.88rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.15s ease;
+}
+
+.dropdown-item.danger {
+    color: #ef4444;
+}
+
+.dropdown-item.danger:hover {
+    background-color: #fee2e2;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.5); 
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-card {
+    background: #ffffff;
+    width: 90%;
+    max-width: 440px;
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-card {
+    transform: scale(1);
+}
+
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #9ca3af;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #374151;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    margin-bottom: 20px;
+    padding-top: 8px;
+}
+
+.modal-title-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.modal-icon-danger {
+    color: #ef4444;
+    font-size: 1.3rem;
+    background-color: #fee2e2;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    text-align: center;
+    align-content: center;
+    flex-shrink: 0;
+}
+
+.modal-header h2 {
+    font-size: 1.3rem;
+    color: #111827;
+    margin: 0;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.warning-text {
+    font-size: 0.88rem;
+    color: #4b5563;
+    line-height: 1.5;
+    background: #fff5f5;
+    border-left: 4px solid #ef4444;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+}
+
+.modal-body label {
+    display: block;
+    font-size: 0.85rem;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.confirm-keyword {
+    font-weight: 700;
+    color: #ef4444;
+    background: #fee2e2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    user-select: none;
+}
+
+.modal-body input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.modal-body input:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-cancel {
+    background: #f3f4f6;
+    color: #4b5563;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.btn-cancel:hover {
+    background: #e5e7eb;
+}
+
+.btn-danger-confirm {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-danger-confirm:disabled {
+    background: #f87171;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-danger-confirm:not(:disabled):hover {
+    background: #dc2626;
+}
+
 @media (max-width: 768px) {
     
-    /* ── PROFILE HERO RE-ESTRUCTURADO ── */
     .profile-hero {
         padding: 2.5rem 1rem 2rem;
     }
@@ -256,30 +500,28 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     .profile-username { justify-content: center; }
 
     .profile-inner {
-        flex-direction: column; /* Apilamos los elementos verticalmente */
-        text-align: center;      /* Centramos los textos */
+        flex-direction: column; 
+        text-align: center; 
         gap: 1.5rem;
     }
 
     .avatar {
-        width: 110px;  /* Hacemos el avatar un pelín más grande para que destaque en el centro */
+        width: 110px; 
         height: 110px;
     }
 
-    /* Estadísticas del perfil ordenadas en pantallas táctiles */
     .profile-stats {
-        justify-content: center; /* Centra las estadísticas */
+        justify-content: center; 
         gap: 1.8rem;
         margin-top: 0.5rem;
     }
 
     .p-stat .n {
-        font-size: 1.4rem; /* Reducimos sutilmente el número */
+        font-size: 1.4rem; 
     }
 
-    /* Contenedor de botones de acción (Mis Libros / Terminar Sesión) */
     .profile-actions {
-        margin-left: 0; /* Quitamos el empuje hacia la derecha de PC */
+        margin-left: 0; 
         width: 100%;
         display: flex;
         gap: 0.8rem;
@@ -287,42 +529,39 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     }
 
     .btn-lib, .btn-logout {
-        flex: 1; /* Hace que ambos botones midan exactamente lo mismo hacia los lados */
+        flex: 1; 
         justify-content: center;
         padding: 0.65rem 1rem;
         font-size: 0.82rem;
         border-radius: 8px;
     }
 
-    /* ── CONTENIDO DE PUBLICACIONES ── */
     .profile-content {
         margin: 1.5rem auto;
-        padding: 0 1rem 4rem; /* Reducimos márgenes para dar espacio a las tarjetas */
+        padding: 0 1rem 4rem; 
     }
 
     .section-title {
         font-size: 1.5rem;
         margin-bottom: 1rem;
-        text-align: center; /* Título de sección centrado */
+        text-align: center; 
     }
 
-    /* ── CUADRÍCULA DE LIBROS (2 Columnas perfectas) ── */
     .book-grid {
-        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); /* 2 libros por fila de forma fluida */
+        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); 
         gap: 1rem;
     }
 
-    /* Desactivamos el efecto hover en pantallas móviles para evitar lag al hacer scroll táctil */
     .ebook-card:hover {
         transform: none;
     }
 
     .card-content {
-        padding: 10px; /* Reducimos espaciado de tarjeta */
+        padding: 10px;
     }
 
     .card-title {
-        font-size: 0.82rem; /* El título se adapta al espacio de las dos columnas */
+        font-size: 0.82rem; 
         line-height: 1.2;
     }
 

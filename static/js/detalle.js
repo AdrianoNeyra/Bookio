@@ -1,4 +1,3 @@
-/* detalle.js */
 function inicializarBotonesLeerMais() {
     const contenedores = document.querySelectorAll('.comment-text-container');
     
@@ -6,16 +5,11 @@ function inicializarBotonesLeerMais() {
         const parrafo = contenedor.querySelector('.comment-text-content');
         const boton = contenedor.parentElement.querySelector('.btn-toggle-expand');
         
-        // Evitamos duplicar la lógica si el comentario ya fue procesado
         if (contenedor.dataset.procesado === "true") return;
 
-        // Comprobamos si el texto realmente se desborda de las 3 líneas configuradas
-        // (scrollHeight es la altura real total, clientHeight es la altura visible truncada)
         if (parrafo.scrollHeight > parrafo.clientHeight) {
             boton.style.display = "inline-block";
             boton.textContent = "Ler mais";
-            
-            // Evento para expandir / contraer
             boton.onclick = function() {
                 const tarjeta = contenedor.closest('.comment-card');
                 if (tarjeta.classList.contains('expanded')) {
@@ -27,8 +21,6 @@ function inicializarBotonesLeerMais() {
                 }
             };
         }
-        
-        // Marcar como procesado
         contenedor.dataset.procesado = "true";
     });
 }
@@ -36,15 +28,13 @@ function inicializarBotonesLeerMais() {
 document.addEventListener('DOMContentLoaded', () => {
 
     inicializarBotonesLeerMais();
-    // ── IR AL CAPITULO ──────────────────────
-    // Nota: Si usas onclick="irAlCapitulo(this)" en el HTML, 
-    // esta función debe estar fuera del DOMContentLoaded.
+
     window.irAlCapitulo = function(elemento) {
         const url = elemento.getAttribute('data-url');
         if (url) window.location.href = url;
     }
 
-    // ── TOGGLE FAVORITO ──────────────────────
+
     const btnFavorito = document.getElementById('btn-favorito');
 
     if (btnFavorito) {
@@ -77,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
 
-                // ── AQUÍ ESTÁ LA LÓGICA QUE FALTABA ──
                 if (data.status === 'added') {
                     this.classList.add('ativo');
                     if (icono) {
@@ -103,14 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ── ELIMINAR LIBRO ──────────────────────
+
     const btnEliminar = document.getElementById('btn-eliminar-libro');
 
     if (btnEliminar) {
         btnEliminar.addEventListener('click', async function() {
             const libroId = this.getAttribute('data-id');
-            
-            // Confirmación de seguridad
             const confirmar = confirm("Tens a certeza que queres eliminar este livro? Esta ação não pode ser desfeita e apagará todos os capítulos.");
             
             if (confirmar) {
@@ -119,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         method: 'POST'
                     });
                     if (response.ok) {
-                        window.location.href = "/biblioteca"; // Redirigir a la biblioteca tras borrar
+                        window.location.href = "/biblioteca";
                     } else {
                         alert("Erro ao eliminar o livro.");
                     }
@@ -131,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ── BOTÓN DE APELACIÓN ──────────────────────
+
     const btnApelar = document.getElementById('btn-apelar');
 
     if (btnApelar) {
@@ -148,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.ok) {
                     alert("Apelação enviada! O estado do livro voltou a 'Pendente'.");
-                    window.location.reload(); // Recargamos para actualizar la interfaz
+                    window.location.reload();
                 } else {
                     alert("Erro ao enviar apelação.");
                 }
@@ -158,41 +145,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ── FLASH MESSAGES ──────────────
-    document.querySelectorAll('.flash-close').forEach(btn => {
-        btn.addEventListener('click', () => btn.closest('.flash').remove());
-    });
 
-    setTimeout(() => {
-        document.querySelectorAll('.flash').forEach(el => {
-            el.style.transition = 'opacity .4s, transform .4s';
-            el.style.opacity = '0';
-            el.style.transform = 'translateX(20px)';
-            setTimeout(() => el.remove(), 400);
-        });
-    }, 4000);
-
-    // ── CARGAR MÁS COMENTARIOS ──────────────────────
     const btnLoadMore = document.getElementById('btn-load-more');
     const commentsContainer = document.getElementById('comments-container');
     
     let currentOffset = 5; 
 
     if (btnLoadMore) {
-        // Capturamos el ID del atributo HTML de manera segura
         const libroId = btnLoadMore.getAttribute('data-libro-id');
 
         btnLoadMore.addEventListener('click', function() {
             btnLoadMore.disabled = true;
             btnLoadMore.innerHTML = '<i class="fas fa-spinner fa-spin"></i> A carregar...';
 
-            // Usamos la variable limpia extraída del atributo HTML
             fetch(`/api/libro/${libroId}/comentarios?offset=${currentOffset}`)
                 .then(res => {
                     if (!res.ok) {
                         throw new Error('Erro na resposta do servidor');
                     }
-                    return res.json(); // Se procesa el JSON una SOLA vez de forma limpia
+                    return res.json();
                 })
                 .then(comentarios => {
                     if (comentarios.length === 0) {
@@ -223,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         commentsContainer.appendChild(card);
                     });
 
-                    // 🚨 CRÍTICO: Escaneamos de nuevo los textos insertados para calcular si necesitan el botón "Ler mais"
                     if (typeof inicializarBotonesLeerMais === "function") {
                         inicializarBotonesLeerMais();
                     }
@@ -244,25 +214,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         });
     }
-    // ── CONTROL DEL MENÚ FLOTANTE DE REPORTES ──
+
+    
     const openModalBtn = document.getElementById('open-report-modal');
     const closeModalBtn = document.getElementById('close-report-modal');
     const cancelModalBtn = document.getElementById('btn-cancel-modal');
     const modalOverlay = document.getElementById('report-modal-overlay');
 
     if (openModalBtn && modalOverlay) {
-        // Abrir el menú flotante
         openModalBtn.addEventListener('click', () => {
             modalOverlay.classList.add('active');
         });
 
-        // Funciones para cerrar el menú
         const cerrarModal = () => modalOverlay.classList.remove('active');
 
         closeModalBtn.addEventListener('click', cerrarModal);
         cancelModalBtn.addEventListener('click', cerrarModal);
 
-        // Cerrar también si el usuario hace clic fuera de la tarjeta blanca (en lo oscuro)
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) cerrarModal();
         });
@@ -275,7 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (commentModalOverlay && inputHiddenCommentId) {
         
-        // Escuchar el clic en las banderas usando delegación (sirve para todos los comentarios)
         document.addEventListener('click', function(e) {
             const button = e.target.closest('.btn-report-comment-trigger');
             
@@ -284,17 +251,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const commentId = button.getAttribute('data-id');
                 
-                // 🚨 Sencillamente asignamos el valor al input oculto
                 inputHiddenCommentId.value = commentId;
                 
-                // Abrimos el modal
                 commentModalOverlay.classList.add('active');
             }
         });
 
         const cerrarCommentModal = () => {
             commentModalOverlay.classList.remove('active');
-            inputHiddenCommentId.value = ""; // Limpiamos el valor por seguridad
+            inputHiddenCommentId.value = "";
         };
 
         if (closeCommentModalBtn) closeCommentModalBtn.addEventListener('click', cerrarCommentModal);

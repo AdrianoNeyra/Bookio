@@ -5,24 +5,20 @@ html, body {
     box-sizing: border-box;
 }
 
-/* Asegurar que el header use todo el ancho libre */
 .site-header {
     width: 100%;
     margin: 0;
-    /* Si estás usando position: fixed o absolute, asegúrate de añadir: */
-    /* left: 0; */
-    /* top: 0; */
 }
 
 .legal-page {
-    background-color: var(--background, #fcfcfc); /* Fondo ligeramente cálido estilo papel */
+    background-color: var(--background, #fcfcfc);
     color: var(--text, #2d2d2d);
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
 }
 
 .legal-container {
-    max-width: 800px; /* Ancho de lectura óptimo */
+    max-width: 800px;
     margin: 4rem auto;
     padding: 0 1.5rem;
     box-sizing: border-box;
@@ -72,7 +68,7 @@ html, body {
 
 .legal-section h2 {
     font-size: 1.35rem;
-    color: var(--primary, #eb7e25); /* Tu color corporativo naranja */
+    color: var(--primary, #eb7e25);
     margin-bottom: 0.8rem;
     font-weight: 600;
 }
@@ -125,7 +121,6 @@ html, body {
     color: var(--primary, #eb7e25);
 }
 
-/* ── ADAPTABILIDADE MÓVEL ── */
 @media (max-width: 768px) {
     .legal-container {
         margin: 2rem auto;
@@ -146,6 +141,6 @@ html, body {
     
     .legal-section p, .legal-section li {
         font-size: 0.95rem;
-        text-align: left; /* Evita espacios raros en justificado móvil */
+        text-align: left;
     }
 }

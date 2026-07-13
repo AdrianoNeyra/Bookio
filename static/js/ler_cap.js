@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastScroll = 0;
     let fontSize = 1.25;
 
-    // 1. Ocultar header al hacer scroll hacia abajo
     window.addEventListener('scroll', () => {
         const currentScroll = window.pageYOffset;
         if (currentScroll > lastScroll && currentScroll > 100) {
@@ -17,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lastScroll = currentScroll;
     });
 
-    // 3. Modo Oscuro
+
     const toggleTheme = document.getElementById('toggle-theme');
     toggleTheme.addEventListener('click', () => {
         body.classList.toggle('dark-mode');
@@ -26,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('reader-theme', isDark ? 'dark' : 'light');
     });
 
-    // Cargar tema preferido
+
     if (localStorage.getItem('reader-theme') === 'dark') {
         body.classList.add('dark-mode');
         toggleTheme.innerHTML = '<i class="fas fa-sun"></i>';

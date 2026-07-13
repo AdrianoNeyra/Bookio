@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=DM+Sans:wght@400;700&display=swap');
 
 :root {
-    --reader-bg: #fcfaf7; /* Papel crema suave */
+    --reader-bg: #fcfaf7;
     --reader-text: #3d3d3d;
     --reader-accent: #eb7e25;
     --font-serif: 'Crimson Pro', serif;
@@ -22,7 +22,7 @@ body {
     transition: background 0.3s, color 0.3s;
 }
 
-/* HEADER FLOTANTE */
+/* HEADER */
 .reader-header {
     position: fixed;
     top: 0; width: 100%; height: 60px;
@@ -89,9 +89,8 @@ body.dark-mode .reader-header { border-color: rgba(255,255,255,0.05); }
 .reader-book-title { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--reader-accent); font-weight: 700; }
 .reader-cap-title { font-size: 0.9rem; font-weight: 600; opacity: 0.8; }
 
-/* CONTAINER DE LECTURA */
 .reader-container {
-    max-width: 740px; /* Ancho ideal para lectura */
+    max-width: 740px;
     margin: 100px auto 5rem;
     padding: 0 1.5rem;
 }
@@ -101,17 +100,16 @@ body.dark-mode .reader-header { border-color: rgba(255,255,255,0.05); }
 .cap-display-title { font-family: var(--font-serif); font-size: 3rem; margin: 0; line-height: 1.2; }
 .divider { width: 60px; height: 3px; background: var(--reader-accent); margin: 2rem auto; }
 
-/* EL CUERPO DEL TEXTO */
 .text-body {
     font-family: var(--font-serif);
-    font-size: 1.25rem; /* Tamaño base cómodo */
+    font-size: 1.25rem;
     line-height: 1.8;
     word-wrap: break-word;
+    white-space: pre-line;
 }
 
 .text-body p { margin-bottom: 1.5rem; }
 
-/* NAVEGACIÓN */
 .cap-navigation {
     margin-top: 5rem;
     padding-top: 2rem;
@@ -126,9 +124,9 @@ body.dark-mode .reader-header { border-color: rgba(255,255,255,0.05); }
     transition: 0.2s; width: 48%;
 }
 .nav-link.disabled {
-    opacity: 0.4 !important; /* Lo vuelve opaco/gris */
-    pointer-events: none !important; /* Evita que se pueda hacer clic o interactuar */
-    background-color: var(--border) !important; /* Toma un color de fondo neutro */
+    opacity: 0.4 !important; 
+    pointer-events: none !important; 
+    background-color: var(--border) !important;
     cursor: not-allowed !important;
 }
 
@@ -145,52 +143,48 @@ body.dark-mode .reader-header { border-color: rgba(255,255,255,0.05); }
 
 @media (max-width: 768px) {
     
-    /* ── 1. GLOBAL Y FLUJO ── */
     html, body.reader-mode {
         overflow-x: hidden !important;
         width: 100% !important;
-        -webkit-text-size-adjust: 100%; /* Evita que iOS altere el tamaño de fuente */
+        -webkit-text-size-adjust: 100%;
     }
 
-    /* ── 2. CABECERA ERGONÓMICA ── */
     .reader-header {
         padding: 0 1.2rem !important;
         height: 60px !important;
         display: flex !important;
         align-items: center !important;
-        justify-content: center !important; /* Centra el bloque del título de forma nativa */
-        position: relative !important; /* Permite posicionar el botón de forma absoluta a la derecha */
+        justify-content: center !important;
+        position: relative !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
 
-    /* El botón "Sair da leitura" se simplifica en móvil mostrando solo un icono grande */
     .reader-nav-left .desktop-only {
-        font-size: 0 !important; /* Oculta el texto "Sair da leitura" */
+        font-size: 0 !important; 
     }
     
     .reader-nav-left .desktop-only i {
-        font-size: 1.25rem !important; /* Agranda la flecha para que sea fácil tocarla */
+        font-size: 1.25rem !important;
         padding: 10px;
         display: inline-block;
     }
 
-    /* Información central compacta para que no se encima con los botones */
     .reader-center-info {
         display: flex !important;
         justify-content: center !important;
         align-items: center !important;
         text-align: center !important;
-        max-width: 70% !important; /* Evita que títulos muy largos pisen el botón de la derecha */
+        max-width: 70% !important; 
         overflow: hidden;
     }
 
     .reader-book-title {
-        font-size: 1rem !important; /* Tamaño cómodo y legible en móviles */
+        font-size: 1rem !important; 
         font-weight: 600 !important;
         white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis; /* Añade puntos suspensivos si el título supera el espacio */
+        text-overflow: ellipsis;
         width: 100%;
     }
 
@@ -202,7 +196,7 @@ body.dark-mode .reader-header { border-color: rgba(255,255,255,0.05); }
         position: absolute !important;
         right: -3rem !important;
         top: 50% !important;
-        transform: translateY(-50%) !important; /* Centrado vertical exacto */
+        transform: translateY(-50%) !important;
         display: flex !important;
         align-items: center !important;
     }
@@ -223,20 +217,18 @@ body.dark-mode .reader-header { border-color: rgba(255,255,255,0.05); }
         width: 100%;
     }
 
-    /* ── 3. CONTENEDOR DE TEXTO OPTIMIZADO PARA LECTURA ── */
     .reader-container {
-        padding: 4rem 2rem 3rem !important; /* Margen superior cómodo debajo del header */
+        padding: 4rem 2rem 3rem !important;
         width: 100% !important;
         margin-top: 2rem;
         box-sizing: border-box !important;
     }
 
     .reading-content {
-        max-width: 100% !important; /* Ocupa todo el espacio de pantalla disponible en smartphones */
+        max-width: 100% !important;
         margin: 0 auto !important;
     }
 
-    /* Ajustes introductorios del capítulo */
     .cap-intro {
         margin-bottom: 2rem !important;
         text-align: center !important;
@@ -248,25 +240,22 @@ body.dark-mode .reader-header { border-color: rgba(255,255,255,0.05); }
     }
 
     .cap-display-title {
-        font-size: 1.8rem !important; /* Evita que el título del artículo rompa la pantalla */
+        font-size: 1.8rem !important;
         line-height: 1.2 !important;
         margin-top: 0.3rem !important;
         word-break: break-word;
     }
 
-    /* Cuerpo de lectura enfocado en la usabilidad móvil */
     .text-body {
-        font-size: 1.2rem !important; /* Tamaño de letra ideal para lectura móvil (18px aprox) */
-        line-height: 1.75 !important;   /* Interlineado amplio para no cansar la vista */
+        font-size: 1.2rem !important; 
+        line-height: 1.75 !important; 
         letter-spacing: 0.01em !important;
     }
 
-    /* Ajuste para los párrafos dentro de la lectura */
     .text-body p {
         margin-bottom: 1.4rem !important;
     }
 
-    /* ── 4. BOTONES DE NAVEGACIÓN INFERIOR (Pulgares cómodos) ── */
     .cap-navigation {
         display: flex !important;
         flex-direction: row !important;
@@ -277,7 +266,7 @@ body.dark-mode .reader-header { border-color: rgba(255,255,255,0.05); }
     }
 
     .nav-link {
-        flex: 1 !important; /* Ambos botones ocupan el mismo espacio equitativo de la pantalla */
+        flex: 1 !important;
         padding: 0.8rem 0.5rem !important;
         display: flex !important;
         align-items: center !important;
@@ -288,15 +277,14 @@ body.dark-mode .reader-header { border-color: rgba(255,255,255,0.05); }
         box-sizing: border-box !important;
     }
 
-    /* Simplificación de los textos internos del botón en móviles */
     .nav-text span {
-        font-size: 0.7rem !important; /* "Anterior" / "Próximo" muy sutil */
+        font-size: 0.7rem !important;
         text-transform: uppercase;
         display: block;
     }
 
     .nav-text strong {
-        font-size: 0.85rem !important; /* Ajuste del título del botón */
+        font-size: 0.85rem !important; 
         font-weight: 600 !important;
         display: block;
         white-space: nowrap;
