@@ -1,34 +1,41 @@
 from flask import Flask, jsonify, render_template, session, request, redirect, url_for, abort
 import mysql.connector, base64
 from werkzeug.security import generate_password_hash, check_password_hash
-import smtplib
+import requests
 import random
 import traceback
 import os
 import re
-from email.mime.text import MIMEText
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.secret_key = 'tu_llave_secreta_aqui'
 
-'''db_config = {
+db_config = {
     'host': 'localhost',
     'user': 'root',
     'password': '',
     'database': 'bookio_db'
-}'''
+}
 
-db_config = {
+'''db_config = {
     'host': 'mysql-bookio-adrianoneyra2007-5b82.l.aivencloud.com',
     'user': 'avnadmin',
     'password': 'AVNS_SSvIvhk1YvEN9kAJd-v',
     'database': 'bookio_db',
     'port': '16246'
-}
+}'''
 
-EMAIL_EMISOR = "adrianoneyra2007@gmail.com"
-EMAIL_PASSWORD = "gqyp mkxl lzcu wwqx"
+load_dotenv()
+
+BREVO_API_KEY = os.getenv("BREVO_API_KEY", "").strip()
+
+SENDER_EMAIL = os.getenv("SENDER_EMAIL", "adrianoneyra2007@gmail.com").strip()
+
+SENDER_NAME = os.getenv("SENDER_NAME", "Bookio").strip()
+
+#print(f"🔍 DEBUG -> SENDER_EMAIL: '{SENDER_EMAIL}' | API_KEY existe: {bool(BREVO_API_KEY)}")
 
 palabras_prohibidas_master = set()
 ruta_txt = "static/assets/censored.txt"
@@ -37,7 +44,7 @@ try:
     if os.path.exists(ruta_txt):
         with open(ruta_txt, "r", encoding="utf-8") as archivo:
             palabras_prohibidas_master = {linea.strip().lower() for linea in archivo if linea.strip()}
-        print(f"✅ Se cargaron exitosamente {len(palabras_prohibidas_master)} palabras prohibidas desde el archivo TXT.")
+        #print(f"✅ Se cargaron exitosamente {len(palabras_prohibidas_master)} palabras prohibidas desde el archivo TXT.")
     else:
         print(f"⚠️ Alerta: No se encontró el archivo '{ruta_txt}'. El filtro estará vacío.")
 except Exception as e:
@@ -75,22 +82,54 @@ def inject_user():
     return dict(current_user_data=None)
 
 def enviar_correo_codigo(email_destino, codigo):
-    msg = MIMEText(f"O teu código de recuperação de palavra-passe é: {codigo}\nEste código expira em 15 minutos.")
-    msg['Subject'] = 'Código de Recuperação - Bookio'
-    msg['From'] = EMAIL_EMISOR
-    msg['To'] = email_destino
+    """Envía correos mediante API HTTP v3 de Brevo compatible con Render y Gmail."""
+    url = "https://api.brevo.com/v3/smtp/email"
+    
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+
+    # Estructura limpia requerida por la API de Brevo para remitentes Freemail (@gmail.com)
+    payload = {
+        "sender": {
+            "name": SENDER_NAME,
+            "email": SENDER_EMAIL
+        },
+        "to": [
+            {
+                "email": email_destino
+            }
+        ],
+        "subject": "Código de Recuperação - Bookio",
+        "htmlContent": f"""
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                <h2>Recuperação de Palavra-passe</h2>
+                <p>O teu código de recuperação de palavra-passe é:</p>
+                <h1 style="background-color: #f4f4f4; padding: 10px 20px; display: inline-block; letter-spacing: 4px; color: #007bff;">{codigo}</h1>
+                <p>Este código expira em 15 minutos.</p>
+            </div>
+        """
+    }
 
     try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(EMAIL_EMISOR, EMAIL_PASSWORD)
-        server.sendmail(EMAIL_EMISOR, email_destino, msg.as_string())
-        server.quit()
-        return True
+        # Petición HTTP directa por el puerto 443 (Compatible con Render)
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        
+        if response.status_code in [200, 201]:
+            print(f"✅ Correo enviado con éxito a {email_destino}")
+            return True
+        else:
+            print(f"❌ Error Brevo Status Code: {response.status_code}")
+            print(f"Detalles: {response.text}")
+            return False
+
     except Exception as e:
-        print(f"Tipo de error: {type(e).__name__}")
-        print(f"Mensaje: {e}")
+        print(f"❌ Excepción en Render al conectar con Brevo: {e}")
         traceback.print_exc()
         return False
+
 
 @app.route('/forgot_password', methods=['POST'])
 def forgot_password():
@@ -121,6 +160,7 @@ def forgot_password():
     cursor.close()
     conn.close()
     return render_template('login.html', active_form='rp1')
+
 
 @app.route('/verify_code', methods=['POST'])
 def verify_code():
@@ -246,8 +286,6 @@ def index():
 
 @app.route('/explorar')
 def explorar():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
     
     search_query = request.args.get('q', '')
     genre_filter = request.args.getlist('genre') 
@@ -321,8 +359,6 @@ def explorar():
 
 @app.route('/libro/<int:libro_id>')
 def detalle_libro(libro_id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
     
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
@@ -345,9 +381,6 @@ def detalle_libro(libro_id):
         cursor.close()
         conn.close()
         abort(404)
-
-    cursor.execute("SELECT id, title FROM chapters WHERE book_id = %s ORDER BY id ASC", (libro_id,))
-    capitulos = cursor.fetchall()
 
     is_favorito = False
     if 'user_id' in session:
@@ -375,7 +408,23 @@ def detalle_libro(libro_id):
     """, (libro_id, libro_id))
     relacionados = cursor.fetchall()
 
-    cursor.execute("SELECT id, title FROM chapters WHERE book_id = %s ORDER BY id ASC", (libro_id,))
+    user_id = session.get('user_id')
+    
+    if user_id and int(user_id) == int(libro['user_id']):
+        cursor.execute("""
+            SELECT id, title, status 
+            FROM chapters 
+            WHERE book_id = %s 
+            ORDER BY id ASC
+        """, (libro_id,))
+    else:
+        cursor.execute("""
+            SELECT id, title, status 
+            FROM chapters 
+            WHERE book_id = %s AND status = 'approved' 
+            ORDER BY id ASC
+        """, (libro_id,))
+        
     capitulos = cursor.fetchall()
 
     cursor.execute("""
@@ -386,7 +435,6 @@ def detalle_libro(libro_id):
         ORDER BY c.created_at DESC
         LIMIT 5
     """, (libro_id,))
-    
     comentarios = cursor.fetchall()
 
     cursor.execute("SELECT COUNT(*) AS total FROM comments WHERE book_id = %s", (libro_id,))
@@ -394,6 +442,7 @@ def detalle_libro(libro_id):
 
     cursor.close()
     conn.close()
+    
     return render_template('detalle.html', 
                            libro=libro, 
                            capitulos=capitulos, 
@@ -401,6 +450,41 @@ def detalle_libro(libro_id):
                            relacionados=relacionados,
                            comentarios=comentarios,
                            total_comentarios=total_comentarios)
+
+@app.route('/eliminar-capitulo/<int:capitulo_id>', methods=['POST'])
+def eliminar_capitulo(capitulo_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        cursor.execute("""
+            SELECT c.book_id, b.author_id 
+            FROM chapters c
+            JOIN books b ON c.book_id = b.id
+            WHERE c.id = %s
+        """, (capitulo_id,))
+        capitulo = cursor.fetchone()
+
+        if not capitulo:
+            return redirect(url_for('index'))
+
+        if int(session['user_id']) != int(capitulo['author_id']):
+            return redirect(url_for('detalle_libro', libro_id=capitulo['book_id']))
+
+        cursor.execute("DELETE FROM chapters WHERE id = %s", (capitulo_id,))
+        conn.commit()
+        
+        return redirect(url_for('detalle_libro', libro_id=capitulo['book_id']))
+
+    except Exception as err:
+        conn.rollback()
+        print(f"Erro ao eliminar: {err}")
+        return redirect(url_for('index'))
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.route('/api/libro/<int:libro_id>/comentarios')
 def obtener_comentarios_api(libro_id):
@@ -504,7 +588,7 @@ def agregar_comentario(libro_id):
 
     return redirect(url_for('detalle_libro', libro_id=libro_id))
 
-@app.route('/libro/<int:libro_id>/nuevo-capitulo', methods=['GET', 'POST'])
+@app.route('/libro/<int:libro_id>/novo-capitulo', methods=['GET', 'POST'])
 def novo_capitulo(libro_id):
     if 'user_id' not in session:
         return redirect(url_for('login'))
@@ -594,6 +678,9 @@ def editar_capitulo(capitulo_id):
 
 @app.route('/capitulo/<int:capitulo_id>')
 def ler_capitulo(capitulo_id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
@@ -1293,6 +1380,22 @@ def admin_dashboard():
             ORDER BY b.id DESC
         """)
         libros_pendientes = cursor.fetchall()
+        
+        cursor.execute("""
+            SELECT 
+                c.id AS capitulo_id,
+                c.title AS capitulo_titulo,
+                c.order_index AS capitulo_numero,
+                b.id AS libro_id,
+                b.title AS libro_titulo,
+                u.username AS autor_nombre
+            FROM chapters c
+            JOIN books b ON c.book_id = b.id
+            JOIN users u ON b.author_id = u.id
+            WHERE c.status = 'pending'
+            ORDER BY c.created_at DESC
+        """)
+        cap_pendientes = cursor.fetchall()
 
         cursor.execute("""
             SELECT 
@@ -1327,9 +1430,30 @@ def admin_dashboard():
                 repo['objeto_nombre'] = res['content'] if res else "[Comentário Ocultado/Eliminado]"
                 
             elif repo['target_type'] == 'chapter':
-                cursor.execute("SELECT title FROM chapters WHERE id = %s", (repo['target_id'],))
-                res = cursor.fetchone()
-                repo['objeto_nombre'] = res['title'] if res else "[Capítulo Eliminado]"
+                # Hacemos un JOIN con la tabla 'books' para obtener el título del libro también
+                cursor.execute("""
+                    SELECT 
+                        c.id AS capitulo_id,
+                        c.title AS capitulo_titulo,
+                        c.order_index AS capitulo_numero,
+                        b.id AS libro_id,
+                        b.title AS libro_titulo
+                    FROM chapters c
+                    JOIN books b ON c.book_id = b.id
+                    WHERE c.id = %s
+                """, (repo['target_id'],))
+                
+                cap_info = cursor.fetchone()
+                
+                if cap_info:
+                    # Guardamos el objeto/diccionario completo dentro del reporte
+                    repo['capitulo_detalle'] = cap_info
+                    
+                    # Guardamos un texto formateado por si quieres usarlo directamente
+                    repo['objeto_nombre'] = f"Cap. {cap_info['capitulo_numero']}: {cap_info['capitulo_titulo']} ({cap_info['libro_titulo']})"
+                else:
+                    repo['capitulo_detalle'] = None
+                    repo['objeto_nombre'] = "[Capítulo Eliminado]"
 
     except mysql.connector.Error as err:
         print(f"ERROR EN DASHBOARD ADMIN: {err}")
@@ -1343,6 +1467,7 @@ def admin_dashboard():
         usuarios=usuarios, 
         libros=libros_raw, 
         libros_pendientes=libros_pendientes,
+        cap_pendientes=cap_pendientes,
         reportes=reportes_pendientes
     )
 @app.route('/admin/promote/<int:usuario_id>')
@@ -1510,6 +1635,102 @@ def admin_reject_book(id):
         conn.close()
     
     return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/approve-chapter/<int:id>', methods=['POST'])
+def admin_approve_chapter(id):
+    if 'user_id' not in session or session.get('user_rank') != 'admin':
+        return jsonify({'success': False, 'message': 'Acesso negado'}), 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True) # Mantenemos tu cursor con diccionarios
+    try:
+        # 1. Obtenemos los datos del autor, libro y capítulo ANTES de hacer cambios
+        cursor.execute("""
+            SELECT b.author_id, b.title AS book_title, c.title AS chapter_title, c.order_index AS order_index, b.id AS book_id
+            FROM chapters c
+            JOIN books b ON c.book_id = b.id
+            WHERE c.id = %s
+        """, (id,))
+        cap_data = cursor.fetchone()
+
+        # 2. Cambiamos el estado del capítulo a 'approved'
+        cursor.execute("UPDATE chapters SET status = 'approved' WHERE id = %s", (id,))
+        conn.commit()
+
+        # 3. Insertamos la notificación si se encontraron los datos correspondientes
+        if cap_data:
+            try:
+                cursor.execute("""
+                    INSERT INTO notifications (user_id, sender_id, book_id, type, message)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (
+                    cap_data['author_id'],
+                    session.get('user_id'),
+                    cap_data['book_id'],
+                    'approval',
+                    f"O capítulo <strong>\"{cap_data['order_index']}\"</strong> do livro <em>\"{cap_data['book_title']}\"</em> foi aprovado e já está disponível para leitura!"
+                ))
+                conn.commit()
+            except Exception as notif_err:
+                print(f"⚠️ Alerta: Capítulo aprovado, mas falhou o envio da notificação: {notif_err}")
+
+        return jsonify({'success': True, 'message': 'Capítulo aprovado com sucesso!'})
+        
+    except mysql.connector.Error as err:
+        print(f"Error al aprobar capítulo: {err}")
+        return jsonify({'success': False, 'message': 'Erro na base de dados'}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@app.route('/admin/reject-chapter/<int:id>', methods=['POST'])
+def admin_reject_chapter(id):
+    if 'user_id' not in session or session.get('user_rank') != 'admin':
+        return jsonify({'success': False, 'message': 'Acesso negado'}), 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True) # Mantenemos tu cursor con diccionarios
+    try:
+        # 1. Obtenemos los datos del autor, libro y capítulo ANTES de borrarlo
+        cursor.execute("""
+            SELECT b.author_id, b.title AS book_title, c.title AS chapter_title, b.id AS book_id
+            FROM chapters c
+            JOIN books b ON c.book_id = b.id
+            WHERE c.id = %s
+        """, (id,))
+        cap_data = cursor.fetchone()
+
+        # 2. Eliminamos el capítulo
+        cursor.execute("DELETE FROM chapters WHERE id = %s", (id,))
+        conn.commit()
+
+        # 3. Enviamos la notificación de rechazo si los datos existían
+        if cap_data:
+            try:
+                cursor.execute("""
+                    INSERT INTO notifications (user_id, sender_id, book_id, type, message)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (
+                    cap_data['author_id'],
+                    session.get('user_id'),
+                    cap_data['book_id'],
+                    'rejection',
+                    f"O teu capítulo <strong>\"{cap_data['chapter_title']}\"</strong> do livro <em>\"{cap_data['book_title']}\"</em> foi rejeitado por não cumprir as diretrizes da plataforma."
+                ))
+                conn.commit()
+            except Exception as notif_err:
+                print(f"⚠️ Alerta: Capítulo rejeitado, mas falhou o envio da notificação: {notif_err}")
+
+        return jsonify({'success': True, 'message': 'Capítulo rejeitado!'})
+        
+    except mysql.connector.Error as err:
+        print(f"Error al rechazar capítulo: {err}")
+        return jsonify({'success': False, 'message': 'Erro na base de dados'}), 500
+    finally:
+        cursor.close()
+        conn.close()
 
 
 @app.route('/admin/reportes/descartar/<int:report_id>', methods=['POST'])

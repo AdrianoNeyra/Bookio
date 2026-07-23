@@ -16,7 +16,7 @@
         <span>Bookio Admin</span>
     </div>
     <nav class="admin-nav">
-        <a href="#users" class="nav-link active" onclick="showTab('users')"><i class="fas fa-users"></i> Usuários</a>
+        <a href="#users" class="nav-link active" onclick="showTab('users')"><i class="fas fa-users"></i> Utilizadores</a>
         <a href="#books" class="nav-link" onclick="showTab('books')"><i class="fas fa-book"></i> Livros</a>
         <a href="#pending" class="nav-link" onclick="showTab('pending')"><i class="fas fa-clock"></i> Pendentes
             {% if libros_pendientes %}<span class="badge-report-count">{{ libros_pendientes|length }}</span>{% endif %}
@@ -210,6 +210,66 @@
                             <div class="no-reports-box">
                                 <i class="fas fa-check-circle" style="color: #2ecc71; font-size: 2rem; margin-bottom: 8px;"></i>
                                 <p>Não existem livros pendentes para aprovar.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card" style="margin-top: 24px;">
+            <div class="card-header">
+                <h2>Capítulos pendentes de aprovação</h2>
+                <span class="badge">{{ cap_pendientes|length }} pendentes</span>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Capítulo</th>
+                        <th>Livro</th>
+                        <th>Autor</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cap in cap_pendientes %}
+                    <tr id="pending-chapter-{{ cap.capitulo_id }}">
+                        <td>
+                            <div class="book-info-cell">
+                                <strong>Cap. {{ cap.capitulo_numero }}: {{ cap.capitulo_titulo }}</strong>
+                            </div>
+                        </td>
+                        <td>
+                            <em>{{ cap.libro_titulo }}</em>
+                        </td>
+                        <td><strong>@{{ cap.autor_nombre }}</strong></td>
+                        <td class="admin-actions-cell">
+                            <div class="action-group">
+                                <!-- Botón Aprobar Capítulo -->
+                                <button class="btn-icon promote" 
+                                        data-url="{{ url_for('admin_approve_chapter', id=cap.capitulo_id) }}"
+                                        onclick="aprovarCapitulo(this)" title="Aprovar Capítulo">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <!-- Botón Rechazar Capítulo -->
+                                <button class="btn-icon delete" 
+                                        data-url="{{ url_for('admin_reject_chapter', id=cap.capitulo_id) }}"
+                                        onclick="rejeitarCapitulo(this)" title="Rejeitar Capítulo">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <!-- Leer Capítulo en pestaña nueva -->
+                                <a href="{{ url_for('ler_capitulo', capitulo_id=cap.capitulo_id) }}" class="btn-icon unban" target="_blank" title="Ler Capítulo">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="no-reports-box">
+                                <i class="fas fa-check-circle" style="color: #2ecc71; font-size: 2rem; margin-bottom: 8px;"></i>
+                                <p>Não existem capítulos pendentes para aprovar.</p>
                             </div>
                         </td>
                     </tr>

@@ -88,6 +88,40 @@ function rejeitarLivro(btn) {
     }
 }
 
+function aprovarCapitulo(btn) {
+    const url = btn.getAttribute('data-url');
+    if (!confirm('Tem certeza de que deseja aprovar este capítulo?')) return;
+
+    fetch(url, { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload(); // Recomienza para refrescar la tabla
+        } else {
+            alert('Erro: ' + data.message);
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+function rejeitarCapitulo(btn) {
+    const url = btn.getAttribute('data-url');
+    if (!confirm('Tem certeza de que deseja rejeitar este capítulo?')) return;
+
+    fetch(url, { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Erro: ' + data.message);
+        }
+    })
+    .catch(err => console.error(err));
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     setTimeout(inicializarCajasComentariosAdmin, 100);
 });

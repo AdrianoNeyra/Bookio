@@ -14,16 +14,19 @@
 
     <div class="container">
         <header class="page-header">
-            <a href="{{ url_for('explorar') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Voltar</a>
+            <a href="{{ url_for('explorar') }}" class="btn-back"><i class="fas fa-arrow-left"></i> Continuar a explorar</a>
         </header>
 
         <div class="book-grid">
             <aside class="sidebar">
                 <div class="sticky-content">
                     <img src="{{ libro.image if libro.image else 'https://via.placeholder.com/280x420/f0e8df/eb7e25?text=📚' }}"
-                         alt="{{ libro.title }}" class="main-cover">
+                        alt="{{ libro.title }}" class="main-cover">
 
-                    <a href="{% if capitulos %}{{ url_for('ler_capitulo', capitulo_id=capitulos[0].id) }}{% else %}#{% endif %}" class="btn-read"></i> Começar a ler</a>
+                    <a href="{% if capitulos %}{{ url_for('ler_capitulo', capitulo_id=capitulos[0].id) }}{% else %}#{% endif %}" class="btn-read">
+                        <i class="fas fa-book-open"></i> Começar a ler
+                    </a>
+
                     {% if session.get('user_id') %}
                     <button id="btn-favorito"
                             class="btn-favorito {% if is_favorito %}ativo{% endif %}"
@@ -31,32 +34,38 @@
                         <i class="{% if is_favorito %}fas{% else %}far{% endif %} fa-heart"></i>
                         <span>{% if is_favorito %}Remover aos favoritos{% else %}Adicionar aos favoritos{% endif %}</span>
                     </button>
-                    
                     {% endif %}
-                    {% if session.get('user_id') == libro.user_id %}
-                    <a href="{{ url_for('editar_libro', libro_id=libro.id) }}" class="btn-edit-owner">
-                        <i class="fas fa-edit"></i> Editar livro
-                    </a>
-                    {% if libro.status == 'rejected' and session['user_id'] == libro.author_id %}
-                    <div class="appeal-container">
-                        <p class="text-danger">Este livro foi rejeitado. Se corrigiste os problemas, podes apelar.</p>
-                        <button id="btn-apelar" 
-                                class="btn-appeal" 
-                                data-id="{{ libro.id }}">
-                            <i class="fas fa-gavel"></i> Apelar para Aprovação
+
+                    {% if session.get('user_id') and session.get('user_id') == libro.author_id %}
+                        
+                        <a href="{{ url_for('editar_libro', libro_id=libro.id) }}" class="btn-edit-owner">
+                            <i class="fas fa-edit"></i> Editar livro
+                        </a>
+
+                        {% if libro.status == 'rejected' %}
+                        <div class="appeal-container">
+                            <p class="text-danger">Este livro foi rejeitado. Se corrigiste os problemas, podes apelar.</p>
+                            <button id="btn-apelar" 
+                                    class="btn-appeal" 
+                                    data-id="{{ libro.id }}">
+                                <i class="fas fa-gavel"></i> Apelar para Aprovação
+                            </button>
+                        </div>
+                        {% endif %}
+
+                        <button type="button" id="btn-eliminar-libro" class="btn btn-delete" 
+                                data-id="{{ libro.id }}" 
+                                data-title="{{ libro.title }}"
+                                title="Eliminar este livro permanentemente">
+                            <i class="fas fa-trash"></i>
                         </button>
-                    </div>
+
                     {% endif %}
-                    <button type="button" id="btn-eliminar-libro" class="btn btn-delete" 
-                            data-id="{{ libro.id }}" 
-                            data-title="{{ libro.title }}"
-                            title="Eliminar este livro permanentemente">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    {% else %}
-                    <button id="open-report-modal" class="btn-trigger-report" title="Denunciar este livro">
-                        <i class="fas fa-flag"></i> Reportar livro
-                    </button>
+
+                    {% if session.get('user_id') and session.get('user_id') != libro.author_id %}
+                        <button id="open-report-modal" class="btn-trigger-report" title="Denunciar este livro">
+                            <i class="fas fa-flag"></i> Reportar livro
+                        </button>
                     {% endif %}
                 </div>
             </aside>
@@ -80,6 +89,7 @@
                 <section class="chapters">
                     <h3>Capítulos de <span>{{ libro.title }}</span></h3>
                     <div class="chapter-list">
+                        
                         {% if session.get('user_id') == libro.user_id %}
                         <a href="{{ url_for('novo_capitulo', libro_id=libro.id) }}" class="btn-add-chapter">
                             <i class="fas fa-plus-circle"></i> 
@@ -88,24 +98,35 @@
                         {% endif %}
 
                         {% for cap in capitulos %}
-                        <div class="chapter-item">
+                        <div class="chapter-item {% if cap.status != 'approved' %}pending-chapter-item{% endif %}"
+                            {% if cap.status != 'approved' %}style="border-left: 4px solid #eb7e25; background: #fffcf9;"{% endif %}>
+                            
                             <span class="cap-number">{{ loop.index }}</span>
+                            
                             <span class="cap-name" 
                                 data-url="{{ url_for('ler_capitulo', capitulo_id=cap.id) }}" 
                                 onclick="irAlCapitulo(this)">
                                 {{ cap.title }}
+                                
+                                {% if cap.status != 'approved' %}
+                                    <span class="badge-pending" style="font-size: 0.8em; color: #eb7e25; margin-left: 8px; font-weight: bold;">
+                                        (Pendente de Aprovação)
+                                    </span>
+                                {% endif %}
                             </span>
                             
                             <div class="chapter-actions">
                                 {% if session.get('user_id') == libro.user_id %}
-                                    <a href="{{ url_for('editar_capitulo', capitulo_id=cap.id) }}" class="btn-edit-cap">
+                                    <a href="{{ url_for('editar_capitulo', capitulo_id=cap.id) }}" class="btn-edit-cap" title="Editar Capítulo">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 {% endif %}
+                                
                                 <i class="fas fa-play-circle btn-play-cap" 
                                     data-url="{{ url_for('ler_capitulo', capitulo_id=cap.id) }}" 
                                     onclick="window.location.href=this.getAttribute('data-url')"
-                                    style="cursor: pointer;">
+                                    style="cursor: pointer;"
+                                    title="Ler Capítulo">
                                 </i>
                             </div>
                         </div>

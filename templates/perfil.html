@@ -16,6 +16,8 @@
     <div class="profile-hero">
         <div class="profile-inner">
             
+            {% if is_own %}
+            {# 1. Si es SU perfil: Renderizamos el formulario interactivo para poder cambiar la foto #}
             <form id="avatar-form" action="{{ url_for('atualizar_perfil') }}" method="POST" enctype="multipart/form-data" style="margin: 0;">
                 <div class="avatar-upload-section">
                     <label for="avatar-file" class="avatar-preview-label" title="Alterar Foto de Perfil">
@@ -27,6 +29,7 @@
                                     <img id="avatar-preview" src="{{ url_for('static', filename='assets/User-nophoto.png') }}" alt="{{ user_profile.username }}">
                                 {% endif %}
                                 
+                                {# Icono de la cámara al pasar el ratón #}
                                 <div class="avatar-edit-overlay">
                                     <i class="fas fa-camera"></i>
                                 </div>
@@ -36,13 +39,31 @@
                     <input type="file" id="avatar-file" name="avatar" accept="image/*" style="display: none;">
                 </div>
             </form>
+        {% else %}
+            {# 2. Si NO es su perfil: Mostramos solo la imagen estática, sin enlaces, sin input de archivo y sin icono de cámara #}
+            <div class="avatar-upload-section">
+                <div class="avatar-wrap">
+                    <div class="avatar">
+                        {% if user_profile.avatar %}
+                            <img id="avatar-preview" src="{{ user_profile.avatar }}" alt="{{ user_profile.username }}">
+                        {% else %}
+                            <img id="avatar-preview" src="{{ url_for('static', filename='assets/User-nophoto.png') }}" alt="{{ user_profile.username }}">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
             
             <div class="profile-info">
                 <div class="profile-username">
                     <h1>{{ user_profile.username }}</h1>
+                    
+                    {# 👇 Solo muestra el lápiz si el usuario está en su propio perfil #}
+                    {% if is_own %}
                     <button type="button" id="open-username-modal" class="btn-trigger-edit" title="Editar nome de utilizador">
                         <i class="fas fa-pencil-alt"></i>
                     </button>
+                    {% endif %}
                 </div>
 
                 <p class="username-handle">

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookio — {{ 'Editar' if editando else 'Escrever' }} Capítulo</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/criar_cap.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -47,29 +48,50 @@
     </aside>
 
     <section class="editor-section">
-        <form action="{{ url_for('editar_capitulo', capitulo_id=capitulo.id) if editando else url_for('novo_capitulo', libro_id=libro.id) }}" method="POST">
+        <form id="form-editor" action="{{ url_for('editar_capitulo', capitulo_id=capitulo.id) if editando else url_for('novo_capitulo', libro_id=libro.id) }}" method="POST">
             
             <div class="editor-header">
                 <input type="text" name="title" class="input-title" 
-                       placeholder="Título do Capítulo (ex: Capítulo 1)" 
-                       value="{{ capitulo.title if editando else '' }}" required>
+                    placeholder="Título do Capítulo (ex: Capítulo 1)" 
+                    value="{{ capitulo.title if editando else '' }}" required>
             </div>
 
             <div class="editor-body">
                 <textarea name="content" id="editor" class="input-content" 
-                          placeholder="Era uma vez..." required>{{ capitulo.content if editando else '' }}</textarea>
+                        placeholder="Era uma vez..." required>{{ capitulo.content if editando else '' }}</textarea>
             </div>
 
             <div class="editor-footer">
                 <p class="word-count">Palavras: <span id="wordNum">0</span></p>
-                <div class="editor-actions">
+                <div class="editor-actions" style="display: flex; gap: 10px; align-items: center;">
+                    
+                    {% if editando %}
+                        <button type="submit" 
+                                form="form-eliminar" {# <-- Vincula este botón al form de eliminar #}
+                                class="btn" 
+                                style="background-color: #e74c3c; color: white; border: none; cursor: pointer; padding: 10px 15px; border-radius: 4px;">
+                            <i class="fas fa-trash-alt"></i> Eliminar
+                        </button>
+                    {% endif %}
+
                     <a href="{{ url_for('detalle_libro', libro_id=libro.id) }}" class="btn btn-alt">Cancelar</a>
-                    <button type="submit" class="btn btn-main">
+                    
+                    <button type="submit" form="form-editor" class="btn btn-main">
                         <i class="fas fa-save"></i> {{ 'Atualizar' if editando else 'Guardar' }} Capítulo
                     </button>
                 </div>
             </div>
         </form>
+
+        {# 2. Formulario de Eliminación independiente (FUERA del formulario del editor) #}
+        {% if editando %}
+            <form id="form-eliminar" 
+                action="{{ url_for('eliminar_capitulo', capitulo_id=capitulo.id) }}" 
+                method="POST" 
+                style="display: none;" {# Lo ocultamos ya que el botón visible está arriba #}
+                onsubmit="return confirm('Tem a certeza de que deseja eliminar definitivamente o capítulo &quot;{{ capitulo.title }}&quot;?');">
+            </form>
+        {% endif %}
     </section>
 </main>
 

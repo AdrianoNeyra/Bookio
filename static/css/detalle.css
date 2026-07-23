@@ -210,6 +210,9 @@ body {
     background-color: #fff5f5;
     border-left: 4px solid #e67e22;
     border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .btn-appeal {
