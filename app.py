@@ -12,20 +12,20 @@ from dotenv import load_dotenv
 app = Flask(__name__)
 app.secret_key = 'tu_llave_secreta_aqui'
 
-db_config = {
+'''db_config = {
     'host': 'localhost',
     'user': 'root',
     'password': '',
     'database': 'bookio_db'
-}
+}'''
 
-'''db_config = {
+db_config = {
     'host': 'mysql-bookio-adrianoneyra2007-5b82.l.aivencloud.com',
     'user': 'avnadmin',
     'password': 'AVNS_SSvIvhk1YvEN9kAJd-v',
     'database': 'bookio_db',
     'port': '16246'
-}'''
+}
 
 load_dotenv()
 
