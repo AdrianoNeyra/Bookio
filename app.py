@@ -12,20 +12,20 @@ from dotenv import load_dotenv
 app = Flask(__name__)
 app.secret_key = 'tu_llave_secreta_aqui'
 
-'''db_config = {
+db_config = {
     'host': 'localhost',
     'user': 'root',
     'password': '',
     'database': 'bookio_db'
-}'''
+}
 
-db_config = {
+'''db_config = {
     'host': 'mysql-bookio-adrianoneyra2007-5b82.l.aivencloud.com',
     'user': 'avnadmin',
     'password': 'AVNS_SSvIvhk1YvEN9kAJd-v',
     'database': 'bookio_db',
     'port': '16246'
-}
+}'''
 
 load_dotenv()
 
@@ -71,13 +71,14 @@ def inject_user():
         try:
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT username, avatar FROM users WHERE id = %s", (session['user_id'],))
+            cursor.execute("SELECT username, avatar, user_rank FROM users WHERE id = %s", (session['user_id'],))
             usuario = cursor.fetchone()
             cursor.close()
             conn.close()
             if usuario:
                 return dict(current_user_data=usuario)
-        except Exception:
+        except Exception as e:
+            print(f"Error en inject_user: {e}")
             pass
     return dict(current_user_data=None)
 
